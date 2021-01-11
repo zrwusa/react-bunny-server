@@ -1,9 +1,9 @@
 {
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
-    "start": "pm2 start src/mock/server.js",
-    "stop": "pm2 stop src/mock/server.js",
-    "mock": "node src/mock/server.js"
+    "start": "pm2 start mock/server.js",
+    "stop": "pm2 stop mock/server.js",
+    "mock": "node mock/server.js"
   },
   "dependencies": {
     "body-parser": "^1.19.0",
