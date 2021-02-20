@@ -1,16 +1,21 @@
 {
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
-    "start": "pm2 start mock/server.js",
-    "stop": "pm2 stop mock/server.js",
-    "mock": "node mock/server.js"
+    "start": "pm2 start ./server/app.js",
+    "stop": "pm2 stop ./server/app.js",
+    "mock": "node ./server/app.js"
   },
   "dependencies": {
     "body-parser": "^1.19.0",
+    "expo-server-sdk": "^3.6.0",
+    "express-validator": "^6.9.2",
     "http-server": "^0.12.3",
     "json-server": "^0.16.3",
     "jsonwebtoken": "^8.5.1",
-    "pm2": "^4.5.1"
+    "mongoose": "^5.11.15",
+    "pm2": "^4.5.4",
+    "winston": "^3.3.3",
+    "ws": "^7.4.3"
   },
   "private": true
 }

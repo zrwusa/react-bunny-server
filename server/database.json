@@ -1,4 +1,10 @@
 {
+  "push_tokens": [
+    {
+      "id": 1,
+      "token": "ExponentPushToken[oT1TDBCO7jtDytecDBmKWW]"
+    }
+  ],
   "products": [
     {
       "id": 1,
@@ -183,6 +189,10 @@
     {
       "text": "text-demo",
       "id": 28
+    },
+    {
+      "text": "text-demo",
+      "id": 29
     }
   ],
   "nearby_films": [
