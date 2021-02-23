@@ -19,14 +19,7 @@ const storeUser = async function (pUser) {
 }
 
 const findUsers = async function (pUser) {
-    return ''
-    // const exist = await User.find(pUser)
-    // if (exist.length < 1) {
-    //     console.log('---no users exist', exist);
-    //     return exist;
-    // } else {
-    //     return exist;
-    // }
+    return await User.find(pUser);
 }
 module.exports = {
     storeUser,
