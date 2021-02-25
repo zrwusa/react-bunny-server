@@ -481,7 +481,7 @@ const restFulAPI = {
     },
     // e.g. POST,PUT,DELETE success,but no need to response a entity
     NoContent: function (ctx, data, message, des) {
-        standardResponse.commonSuccess(ctx, 204, null, message, des);
+        standardResponse.commonSuccess(ctx, 204, data, message, des);
     },
     // e.g.  similar to 202, call limit is not exceeded, the server may put your request into the queue and process it slowly.
     // At this time, you will receive the 303, and the Location header tells the caller that it should pass that URL is used for next step.

@@ -15,7 +15,7 @@ function verifyToken(token) {
 }
 const jwtAuth = () => {
     const auth = async (ctx, next) => {
-        console.log('---authMiddleware')
+        console.log('---auth')
         const {request} = ctx
         if (request.headers.authorization === undefined || request.headers.authorization.split(' ')[0] !== 'Bearer') {
             restFulAPI.Unauthorized(ctx, 'Access token not provided');
@@ -23,16 +23,14 @@ const jwtAuth = () => {
         try {
             let verifyTokenResult;
             verifyTokenResult = verifyToken(request.headers.authorization.split(' ')[1]);
-
             if (verifyTokenResult instanceof Error) {
-                restFulAPI.Unauthorized(ctx, 'Error in authorization format,may access token expired');
+                restFulAPI.Unauthorized(ctx, 'Authorization format error,may access token expired');
             }
-            console.log('---auth await next')
-            await next()
         } catch (err) {
-            // ctx.throw(401, 'Error access_token is revoked', {originalError: err});
-            restFulAPI.Unauthorized(ctx, 'Error access_token is revoked', {originalError: err.toString()});
+            restFulAPI.Unauthorized(ctx, 'Inappropriate access token is revoked', {originalError: err.toString()});
         }
+        console.log('---auth await next')
+        await next()
     }
     auth.unless = require('koa-unless');
     return auth;

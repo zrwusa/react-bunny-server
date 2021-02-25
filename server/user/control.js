@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const {User} = require('./user')
+const {User} = require('./schema')
 
 const storeUser = async function (pUser) {
     const exist = await User.find(pUser)

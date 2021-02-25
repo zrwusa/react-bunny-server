@@ -22,8 +22,11 @@ const storePushToken = async function (token) {
         notificationTokenInstance.token = token;
         const saved = await notificationTokenInstance.save();
         console.log('---saved', saved)
+        return saved;
+
     } else {
         console.log('---exist saveUniqueNotificationToken', exist)
+        return exist;
     }
 }
 

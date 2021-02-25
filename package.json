@@ -1,10 +1,9 @@
 {
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
-    "start": "pm2 start ./server/app.js",
+    "serve": "pm2 start ./server/app.js",
     "stop": "pm2 stop ./server/app.js",
-    "mock": "node ./server/app.js",
-    "mock-koa": "node ./server/app-koa.js"
+    "start": "node server/app.js"
   },
   "dependencies": {
     "@koa/cors": "^3.1.0",

@@ -13,5 +13,5 @@ const EmployeeSchema = new Schema({
 const Employee = mongoose.model('employee', EmployeeSchema);
 
 module.exports = {
-     Employee:Employee
+    Employee: Employee
 }

@@ -1,5 +1,5 @@
-const {Employee} = require('./employee')
-const {storeEmployee,findEmployees} = require('./control')
+const {Employee} = require('./schema')
+const {storeEmployee, findEmployees} = require('./control')
 module.exports = {
     Employee,
     storeEmployee,

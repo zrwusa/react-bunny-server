@@ -7,12 +7,14 @@ const bunnyAPIMiddleware = () => {
             console.log('---try before')
             await next();
             console.log('---try after')
+            // todo 204,205 koa does not allow to modify the body
             if (ctx.status === 404) {
                 restFulAPI.kick404(ctx)
             } else {
                 let body = bunnyAPI.constructSuccessBody(ctx, ctx.status, ctx.body);
                 body.time_spend = new Date().getTime() - created_at;
                 ctx.body = body;
+                console.log('---ctx.body',ctx.body);
             }
         } catch (err) {
             console.log('---catch err', JSON.stringify(err));

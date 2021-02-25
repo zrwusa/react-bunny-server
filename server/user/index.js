@@ -1,4 +1,4 @@
-const {User} = require('./user')
+const {User} = require('./schema')
 const {storeUser,findUsers} = require('./control')
 module.exports = {
     User,

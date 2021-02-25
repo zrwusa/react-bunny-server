@@ -1,27 +1,29 @@
 const mongoose = require('mongoose')
-const {Employee} = require('./employee')
+const {NearbyFilm} = require('./schema')
 
-const storeEmployee = async function (pEmployee) {
-    const exist = await Employee.find(pEmployee)
+const storeNearbyFilm = async function (pNearbyFilm) {
+    const exist = await NearbyFilm.find(pNearbyFilm)
     if (exist.length < 1) {
-        const user = new Employee();
-        user._id = mongoose.Types.ObjectId()
-        user.email = pEmployee.email;
-        user.password = pEmployee.password;
-        user.nickname = pEmployee.nickname;
-        const saved = await user.save();
-        console.log('---saved employee', saved);
+        const nearbyFilm = new NearbyFilm();
+        nearbyFilm._id = mongoose.Types.ObjectId()
+        nearbyFilm.coordinate = pNearbyFilm.coordinate;
+        nearbyFilm.title = pNearbyFilm.title;
+        nearbyFilm.description = pNearbyFilm.description;
+        nearbyFilm.image = pNearbyFilm.image;
+
+        const saved = await nearbyFilm.save();
+        console.log('---saved nearbyFilm', saved);
         return saved;
     } else {
-        console.log('---exist save employee already exists', exist);
+        console.log('---exist save nearbyFilm already exists', exist);
         return exist;
     }
 }
 
-const findEmployees = async function (pEmployee) {
-    return Employee.find(pEmployee);
+const findNearbyFilms = async function (pNearbyFilm) {
+    return NearbyFilm.find(pNearbyFilm);
 }
 module.exports = {
-    storeEmployee,
-    findEmployees
+    storeNearbyFilm,
+    findNearbyFilms
 }

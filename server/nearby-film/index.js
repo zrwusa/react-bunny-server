@@ -1,7 +1,7 @@
-const {Employee} = require('./employee')
-const {storeEmployee,findEmployees} = require('./control')
+const {NearbyFilm} = require('./schema')
+const {storeNearbyFilm, findNearbyFilms} = require('./control')
 module.exports = {
-    Employee,
-    storeEmployee,
-    findEmployees
+    NearbyFilm,
+    storeNearbyFilm,
+    findNearbyFilms
 }

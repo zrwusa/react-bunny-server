@@ -61,8 +61,8 @@ const storeUniqueAlertQuickSettings = async function (basePrice, token, granular
         timeDiff > 0 ? bigger++ : smaller++
         quickSettings.push(quickSetting);
     }
-    await AlertSetting.create(quickSettings)
-    const endF = new Date()
+    return await AlertSetting.create(quickSettings)
+    // const endF = new Date()
     // console.log('---FDiff,bigger,smaller', endF.getMilliseconds() - startF.getMilliseconds(), bigger, smaller)
 }
 

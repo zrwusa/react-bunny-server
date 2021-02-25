@@ -1,3 +1,4 @@
+const mongoose = require('mongoose')
 const fs = require('fs')
 const koaBodyParser = require('koa-bodyparser')
 const KoaRouter = require('@koa/router')
@@ -5,9 +6,10 @@ const cors = require('@koa/cors');
 const path = require("path");
 const https = require("https");
 const config = require("./config.json");
-const {jwtAuth,createToken} = require('./middlewares/jwt-auth');
+const {jwtAuth, createToken} = require('./middlewares/jwt-auth');
 const {bunnyAPIMiddleware} = require('./middlewares/bunny-api')
-const {findEmployees,storeEmployee} = require('./employee')
+const {findEmployees, storeEmployee} = require('./employee')
+const {findNearbyFilms, storeNearbyFilm, NearbyFilm} = require("./nearby-film");
 
 const {
     storePushToken,
@@ -61,6 +63,7 @@ router.post('/push-notification/register-device', async (ctx, next) => {
     const {request} = ctx;
     const {token} = request.body;
     const storedToken = await storePushToken(token);
+    console.log('---register-device storedToken', storedToken)
     restFulAPI.Success(ctx, storedToken)
 })
 
@@ -78,6 +81,7 @@ router.post('/push-notification/alert-quick-setting', async (ctx, next) => {
     let stored;
     if (curPrice) {
         stored = await storeUniqueAlertQuickSettings(curPrice, token, granularity)
+        console.log('---alert-quick-setting stored', stored)
         restFulAPI.Success(ctx, stored)
     } else {
         restFulAPI.businessError(ctx, 'No cur price')
@@ -104,7 +108,13 @@ router.get('/employee', async (ctx, next) => {
     // throw('xxx1')
     // restFulAPI.businessError(ctx, employees);
     // ctx.throw(422,'llll')
-    restFulAPI.Success(ctx,employees)
+    restFulAPI.Success(ctx, employees)
+})
+
+router.get('/nearby-film', async (ctx, next) => {
+    console.log('---nearby-film')
+    const nearbyFilms = await findNearbyFilms({})
+    restFulAPI.Success(ctx, nearbyFilms)
 })
 
 router.post('/auth/login', async (ctx, next) => {
