@@ -10,7 +10,7 @@ const storeUser = async function (pUser) {
         user.password = pUser.password;
         user.nickname = pUser.nickname;
         const saved = await user.save();
-        console.log('---saved', saved);
+        console.log('---saved user', saved);
         return saved;
     } else {
         console.log('---exist save user already exists', exist);
@@ -19,7 +19,7 @@ const storeUser = async function (pUser) {
 }
 
 const findUsers = async function (pUser) {
-    return await User.find(pUser);
+    return User.find(pUser);
 }
 module.exports = {
     storeUser,
