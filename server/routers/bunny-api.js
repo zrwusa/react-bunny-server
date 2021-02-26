@@ -6,7 +6,6 @@ import {cancelAllAlertSettings, storeUniqueAlertQuickSettings, storeUniqueAlertS
 import {getCurPrice} from "../push-notification/ws-bitcoin-push.js";
 import {findEmployees} from "../employee/index.js";
 import {findNearbyFilms} from "../nearby-film/index.js";
-
 import KoaRouter from '@koa/router'
 
 const bunnyRouter = new KoaRouter();
@@ -33,6 +32,20 @@ bunnyRouter.post('/auth/register', async (ctx, next) => {
         restFulAPI.Success(ctx, {"access_token": access_token, "user": {email, nickname}})
     }
 
+})
+
+bunnyRouter.post('/auth/login', async (ctx, next) => {
+    const {request} = ctx;
+    const {email, password} = request.body;
+    const exist = await findUsers({email, password});
+    if (exist.length < 1) {
+        restFulAPI.Unauthorized(ctx, 'Incorrect email or password')
+    } else {
+        const user = exist[0]
+        const access_token = createToken({email, password})
+        const {nickname} = user;
+        restFulAPI.Success(ctx, {"access_token": access_token, "user": {email, nickname}})
+    }
 })
 
 bunnyRouter.post('/push-service/devices', async (ctx, next) => {
@@ -75,14 +88,12 @@ bunnyRouter.post('/push-service/sendings', async (ctx, next) => {
     const sent = await sendMessageThenGetReceiptIds(message)
     restFulAPI.Success(ctx, sent)
 })
+
 // todo filtering, sorting, and pagination
 // todo employees?sort=+author,-datepublished
 bunnyRouter.get('/employees', async (ctx, next) => {
     const employees = await findEmployees({})
-    // throw('xxx1')
-    // restFulAPI.businessError(ctx, employees);
-    // ctx.throw(422,'llll')
-    restFulAPI.Success(ctx)
+    restFulAPI.Success(ctx,employees)
 })
 
 bunnyRouter.get('/nearby-films', async (ctx, next) => {
@@ -90,18 +101,6 @@ bunnyRouter.get('/nearby-films', async (ctx, next) => {
     restFulAPI.Success(ctx, nearbyFilms)
 })
 
-bunnyRouter.post('/auth/login', async (ctx, next) => {
-    const {request} = ctx;
-    const {email, password} = request.body;
-    const exist = await findUsers({email, password});
-    if (exist.length < 1) {
-        restFulAPI.Unauthorized(ctx, 'Incorrect email or password')
-    } else {
-        const user = exist[0]
-        const access_token = createToken({email, password})
-        const {nickname} = user;
-        restFulAPI.Success(ctx, {"access_token": access_token, "user": {email, nickname}})
-    }
-})
+
 
 export {bunnyRouter}
