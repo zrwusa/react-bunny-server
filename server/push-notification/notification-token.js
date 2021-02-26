@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose  from 'mongoose'
 
 const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
@@ -10,6 +10,6 @@ const NotificationTokenSchema = new Schema({
 
 const NotificationToken = mongoose.model('notification_token', NotificationTokenSchema);
 
-module.exports = {
+export {
     NotificationToken
 }

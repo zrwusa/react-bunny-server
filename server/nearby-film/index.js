@@ -1,6 +1,6 @@
-const {NearbyFilm} = require('./schema')
-const {storeNearbyFilm, findNearbyFilms} = require('./control')
-module.exports = {
+import {NearbyFilm}  from './schema.js'
+import {storeNearbyFilm, findNearbyFilms}  from './control.js'
+export {
     NearbyFilm,
     storeNearbyFilm,
     findNearbyFilms

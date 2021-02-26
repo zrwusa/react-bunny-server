@@ -8,6 +8,6 @@ const responseTime = () => (req, res, next) => {
     next();
 }
 
-module.exports = {
+export {
     responseTime
 }

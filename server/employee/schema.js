@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose  from 'mongoose';
 
 const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
@@ -12,6 +12,6 @@ const EmployeeSchema = new Schema({
 
 const Employee = mongoose.model('employee', EmployeeSchema);
 
-module.exports = {
-    Employee: Employee
+export {
+     Employee
 }

@@ -1,5 +1,5 @@
-const mongoose = require('mongoose')
-const {assignToModelInstance} = require('../utils')
+import mongoose  from 'mongoose'
+import {assignToModelInstance}  from '../utils.js'
 
 const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
@@ -18,16 +18,13 @@ const AlertSetting = mongoose.model('alert_setting', AlertSettingSchema);
 
 const storeUniqueAlertSetting = async function (alertSetting) {
     const exist = await AlertSetting.find(alertSetting)
-    console.log('---exist', exist)
     if (exist.length < 1) {
         const alertSettingInstance = new AlertSetting();
         assignToModelInstance(alertSettingInstance, alertSetting)
         alertSettingInstance._id = mongoose.Types.ObjectId()
         const saved = await alertSettingInstance.save();
-        console.log('---saved', saved)
         return saved;
     } else {
-        console.log('---exist saveUniqueAlertSetting', exist)
         return exist;
     }
 }
@@ -72,7 +69,7 @@ const cancelAllAlertSettings = async function (token) {
 }
 
 
-module.exports = {
+export {
     AlertSetting,
     storeUniqueAlertSetting,
     storeUniqueAlertQuickSettings,

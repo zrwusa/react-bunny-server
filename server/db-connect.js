@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose  from 'mongoose'
 
 // const connectDB = async function () {
 // mongodb+srv://expo_react_bunny:<password>@cluster0.xsvie.mongodb.net/<dbname>?retryWrites=true&w=majority
@@ -17,6 +17,6 @@ const db = mongoose.connect('mongodb+srv://expo_react_bunny:Zrw_6524789@cluster0
 //     .then((db) => {
 //         console.log('---dbRes', db)
 
-module.exports = {
+export {
     db
 }

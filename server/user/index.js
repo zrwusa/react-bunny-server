@@ -1,6 +1,6 @@
-const {User} = require('./schema')
-const {storeUser,findUsers} = require('./control')
-module.exports = {
+import {User}  from './schema.js'
+import {storeUser,findUsers}  from './control.js'
+export {
     User,
     storeUser,
     findUsers

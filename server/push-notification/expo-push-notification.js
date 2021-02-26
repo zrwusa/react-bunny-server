@@ -1,31 +1,27 @@
-let {Expo} = require("expo-server-sdk");
-const mongoose = require('mongoose')
-const {NotificationToken} = require('./notification-token')
+import Expo from "expo-server-sdk"
+import mongoose  from 'mongoose'
+import {NotificationToken}  from './notification-token.js'
 
-const expo = new Expo();
+const expo = new Expo.Expo();
 
 async function getPushTokens() {
     const notificationTokens = await NotificationToken.find({})
     const pushTokens = notificationTokens.map((row) => {
         return row.token;
     })
-    console.log('---getPushTokens', pushTokens)
     return pushTokens
 }
 
 const storePushToken = async function (token) {
     const exist = await NotificationToken.find({token: token})
-    console.log('---exist', exist)
     if (exist.length < 1) {
         const notificationTokenInstance = new NotificationToken();
         notificationTokenInstance._id = mongoose.Types.ObjectId()
         notificationTokenInstance.token = token;
         const saved = await notificationTokenInstance.save();
-        console.log('---saved', saved)
         return saved;
 
     } else {
-        console.log('---exist saveUniqueNotificationToken', exist)
         return exist;
     }
 }
@@ -155,4 +151,4 @@ async function sendMessageThenGetReceiptIds(message,tokens) {
     // }
 }
 
-module.exports = {storePushToken, sendMessageThenGetReceiptIds}
+export {storePushToken, sendMessageThenGetReceiptIds}

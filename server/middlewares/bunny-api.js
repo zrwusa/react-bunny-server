@@ -1,24 +1,24 @@
-const {restFulAPI} = require("../restful-api");
-const {bunnyAPI} = require('../api-protocol');
+import {restFulAPI} from "../restful-api.js"
+import {bunnyAPI} from '../api-protocol.js'
+
 const bunnyAPIMiddleware = () => {
     return async (ctx, next) => {
         const created_at = new Date().getTime();
         try {
-            console.log('---try before')
             await next();
-            console.log('---try after')
-            // todo 204,205 koa does not allow to modify the body
+            // todo 204,205 koa does not allow to modify the ctx.body
+            if (ctx.status === 204 && ctx.body === undefined) {
+                console.log('---ctx.status === 204 && ctx.body === undefined')
+            }
+            // 404
             if (ctx.status === 404) {
                 restFulAPI.kick404(ctx)
             } else {
                 let body = bunnyAPI.constructSuccessBody(ctx, ctx.status, ctx.body);
                 body.time_spend = new Date().getTime() - created_at;
                 ctx.body = body;
-                console.log('---ctx.body',ctx.body);
             }
         } catch (err) {
-            console.log('---catch err', JSON.stringify(err));
-            console.log('---catch err err.statusCode, err.status', err.statusCode, err.status)
             ctx.status = err.statusCode || err.status || 500;
             let body = bunnyAPI.constructErrorBody(ctx, ctx.status, err.message, err.des, err.stack);
             body.time_spend = new Date().getTime() - created_at;
@@ -28,6 +28,6 @@ const bunnyAPIMiddleware = () => {
         }
     }
 }
-module.exports = {
+export {
     bunnyAPIMiddleware
 }

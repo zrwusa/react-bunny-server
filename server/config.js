@@ -1,4 +1,4 @@
-{
+export default {
   "devServer": {
     "domain": "localhost",
     "port": 3006

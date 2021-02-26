@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose  from 'mongoose'
 
 const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
@@ -18,6 +18,6 @@ const NearbyFilmSchema = new Schema({
 
 const NearbyFilm = mongoose.model('nearby_film', NearbyFilmSchema);
 
-module.exports = {
+export {
     NearbyFilm
 }

@@ -34,6 +34,6 @@ const judgePrice = (nowPrice, alertSetting) => {
     return {comparingResult,alertMsg}
 }
 
-module.exports = {
+export {
     judgePrice
 }

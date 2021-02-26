@@ -1,4 +1,5 @@
-const {httpStatus} = require("./restful-api");
+import {httpStatus}  from "./restful-api.js"
+import createError from 'http-errors'
 
 const bunnyAPIConfig = {
     success_data: "`${data}`",
@@ -70,6 +71,6 @@ const bunnyAPI = {
     }
 }
 
-module.exports = {
+export {
     bunnyAPI
 }

@@ -1,5 +1,5 @@
-const mongoose = require('mongoose')
-const {User} = require('./schema')
+import mongoose  from 'mongoose'
+import {User}  from './schema.js'
 
 const storeUser = async function (pUser) {
     const exist = await User.find(pUser)
@@ -10,10 +10,8 @@ const storeUser = async function (pUser) {
         user.password = pUser.password;
         user.nickname = pUser.nickname;
         const saved = await user.save();
-        console.log('---saved user', saved);
         return saved;
     } else {
-        console.log('---exist save user already exists', exist);
         return exist;
     }
 }
@@ -21,7 +19,7 @@ const storeUser = async function (pUser) {
 const findUsers = async function (pUser) {
     return User.find(pUser);
 }
-module.exports = {
+export {
     storeUser,
     findUsers
 }

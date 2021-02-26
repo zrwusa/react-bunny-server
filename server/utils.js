@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose  from 'mongoose'
 
 const assignToModelInstance = function (instance, obj) {
     for (let i in obj) {
@@ -26,7 +26,7 @@ const toMilliSeconds = function (abbreviation) {
 }
 
 const ObjectId = mongoose.Types.ObjectId
-module.exports = {
+export {
     ObjectId,
     assignToModelInstance,
     toMilliSeconds

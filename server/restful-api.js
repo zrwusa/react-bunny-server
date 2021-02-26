@@ -437,13 +437,10 @@ const httpStatus = {
 
 const standardResponse = {
     commonSuccess: (ctx, status, data, message, des) => {
-        console.log('---standardResponse,commonSuccess')
         ctx.status = status;
         ctx.body = data;
     },
     commonError: (ctx, status, errorMessage, errorDes, errorStack) => {
-        console.log('---standardResponse,commonError')
-
         ctx.throw(status, errorMessage,errorDes, errorStack)
     }
 }
@@ -530,7 +527,7 @@ const restFulAPI = {
     }
 }
 
-module.exports = {
+export {
     restFulAPI,
     standardResponse,
     httpStatus

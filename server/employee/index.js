@@ -1,6 +1,6 @@
-const {Employee} = require('./schema')
-const {storeEmployee, findEmployees} = require('./control')
-module.exports = {
+import {Employee}  from './schema.js'
+import {storeEmployee, findEmployees}  from './control.js'
+export {
     Employee,
     storeEmployee,
     findEmployees

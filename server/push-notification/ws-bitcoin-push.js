@@ -1,8 +1,8 @@
-const {sendMessageThenGetReceiptIds} = require("./expo-push-notification")
-const WebSocket = require('ws');
-const {AlertSetting} = require('./alert-setting')
-const {judgePrice} = require('../helpers')
-const {toMilliSeconds} = require('../utils')
+import {sendMessageThenGetReceiptIds}  from "./expo-push-notification.js"
+import WebSocket  from 'ws'
+import {AlertSetting}  from './alert-setting.js'
+import {judgePrice}  from '../helpers.js'
+import {toMilliSeconds}  from '../utils.js'
 
 let curPrice = 0;
 async function startListenAndPush(shouldSend = false) {
@@ -47,7 +47,6 @@ async function startListenAndPush(shouldSend = false) {
             if (intervalHandle) {
                 clearInterval(intervalHandle)
             }
-            console.log('---deleted alertSetting', deleted)
         } else {
             const message = {
                 title: `Price is ${price} 📬`,
@@ -103,7 +102,6 @@ async function startListenAndPush(shouldSend = false) {
     ws.addEventListener('message', onWSMessage)
 
     const onWSError = (e) => {
-        console.log('---onWSError', e);
         if (reconnectTimes < reconnectTimesConfig) {
             ws.send(JSON.stringify(reconnectMsg))
         }
@@ -122,4 +120,4 @@ const getCurPrice = function(){
     return curPrice;
 }
 
-module.exports = {startListenAndPush,getCurPrice}
+export {startListenAndPush,getCurPrice}
