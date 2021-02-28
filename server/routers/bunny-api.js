@@ -4,9 +4,10 @@ import {createToken} from "../middlewares/jwt-auth.js";
 import {sendMessageThenGetReceiptIds, storePushToken} from "../push-notification/expo-push-notification.js";
 import {cancelAllAlertSettings, storeUniqueAlertQuickSettings, storeUniqueAlertSetting} from "../push-notification/alert-setting.js";
 import {getCurPrice} from "../push-notification/ws-bitcoin-push.js";
-import {findEmployees} from "../employee/index.js";
+import {findEmployees} from "../models/employee/index.js";
 import {findNearbyFilms} from "../nearby-film/index.js";
 import KoaRouter from '@koa/router'
+import koaPagination from 'koa-pagination'
 
 const bunnyRouter = new KoaRouter();
 
@@ -99,6 +100,11 @@ bunnyRouter.get('/employees', async (ctx, next) => {
 bunnyRouter.get('/nearby-films', async (ctx, next) => {
     const nearbyFilms = await findNearbyFilms({})
     restFulAPI.Success(ctx, nearbyFilms)
+})
+
+bunnyRouter.get('/demo-sagas', koaPagination.middleware(),async (ctx, next) => {
+    console.log('---ctx.pagination',ctx.pagination)
+    restFulAPI.Success(ctx, [{id:1,text:'saga1'},{id:2,text:'saga2'}])
 })
 
 

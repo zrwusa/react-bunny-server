@@ -10,7 +10,7 @@ const bunnyAPIMiddleware = () => {
             if (ctx.status === 204 && ctx.body === undefined) {
                 console.log('---ctx.status === 204 && ctx.body === undefined')
             }
-            // 404
+            // catch 404 and forward to error handler
             if (ctx.status === 404) {
                 restFulAPI.kick404(ctx)
             } else {

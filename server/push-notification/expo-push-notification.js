@@ -1,8 +1,8 @@
-import Expo from "expo-server-sdk"
+import ExpoSDK from "expo-server-sdk"
 import mongoose  from 'mongoose'
 import {NotificationToken}  from './notification-token.js'
 
-const expo = new Expo.Expo();
+const expo = new ExpoSDK.Expo();
 
 async function getPushTokens() {
     const notificationTokens = await NotificationToken.find({})
@@ -32,7 +32,7 @@ function createMessages(body, data, pushTokens) {
     for (let pushToken of pushTokens) {
         // Each push token looks like ExponentPushToken[xxx]
         // Check that all your push tokens appear to be valid Expo push tokens
-        if (!Expo.isExpoPushToken(pushToken)) {
+        if (!ExpoSDK.Expo.isExpoPushToken(pushToken)) {
             console.error(`Push token ${pushToken} is not a valid Expo push token`);
             continue;
         }

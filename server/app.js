@@ -10,7 +10,7 @@ import {bunnyRouter} from './routers/bunny-api.js'
 import {startListenAndPush}  from './push-notification/ws-bitcoin-push.js'
 import './db-connect.js'
 
-startListenAndPush(false).then()
+startListenAndPush(true).then()
 
 import Koa  from 'koa'
 // todo apicache
@@ -32,7 +32,7 @@ app.use(bunnyRouter.routes())
 //     console.log('app.on error',JSON.stringify(err))
 // });
 
-const {localBackEnd, isHttps} = config;
+const {localBackEnd,remoteBackEnd, isHttps} = config;
 const keyFile = path.resolve('.expo/web/development/ssl', 'key-localhost.pem');
 const certFile = path.resolve('.expo/web/development/ssl', 'cert-localhost.pem');
 let key, cert;
@@ -44,7 +44,6 @@ try {
 } catch (err) {
     isExpoSSLFileExist = false;
 }
-
 if (isHttps && isExpoSSLFileExist) {
     https
         .createServer(
@@ -54,11 +53,11 @@ if (isHttps && isExpoSSLFileExist) {
             },
             app
         )
-        .listen(localBackEnd.port, () => {
-            console.log(`https://localhost:${localBackEnd.port}/ Run API Mock Server with expo SSL(Just a Self Signed SSL,only for development)`);
+        .listen(remoteBackEnd.port, () => {
+            console.log(`https://localhost:${remoteBackEnd.port}/ Run API Mock Server with expo SSL(Just a Self Signed SSL,only for development)`);
         });
 } else {
-    app.listen(localBackEnd.port, () => {
-        console.log(`http://localhost:${localBackEnd.port}/ Run API Mock Server`)
+    app.listen(remoteBackEnd.port, () => {
+        console.log(`http://localhost:${remoteBackEnd.port}/ Run API Mock Server`)
     })
 }
