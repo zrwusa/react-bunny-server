@@ -1,17 +1,39 @@
-import mongoose  from 'mongoose';
+import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
 
+export const DOCUMENT_NAME = 'Employee';
+export const COLLECTION_NAME = 'employees';
+
+// export default interface User extends Document {
+//     name:string;
+//     email?:string;
+// }
+
 const EmployeeSchema = new Schema({
-    _id: ObjectId,
-    "first_name": String,
-    "last_name": String,
-    "email": String
+    _id: {
+        type: ObjectId,
+        // select: false
+    },
+    first_name: {
+        type: Schema.Types.String,
+        required: true,
+        trim: true,
+        maxlength: 100,
+    },
+    last_name: {
+        type: Schema.Types.String,
+        required: true,
+        trim: true,
+    },
+    email: {
+        type: Schema.Types.String,
+        required: true,
+        unique: true,
+        trim: true,
+        select: true
+    }
 });
 
-const Employee = mongoose.model('employee', EmployeeSchema);
-
-export {
-     Employee
-}
+export const EmployeeModel = mongoose.model(DOCUMENT_NAME, EmployeeSchema, COLLECTION_NAME);

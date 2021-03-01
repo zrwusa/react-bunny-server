@@ -1,23 +1,20 @@
 import mongoose  from 'mongoose'
-import {Employee}  from './schema.js'
+import {EmployeeModel}  from './schema.js'
 
 const storeEmployee = async function (pEmployee) {
-    const exist = await Employee.find(pEmployee)
+    const exist = await EmployeeModel.find(pEmployee)
     if (exist.length < 1) {
-        const employee = new Employee();
+        const employee = new EmployeeModel();
         employee._id = mongoose.Types.ObjectId()
         employee.email = pEmployee.email;
-        employee.password = pEmployee.password;
-        employee.nickname = pEmployee.nickname;
-        const saved = await employee.save();
-        return saved;
+        return  await employee.save();
     } else {
         return exist;
     }
 }
 
 const findEmployees = async function (pEmployee) {
-    return Employee.find(pEmployee);
+    return EmployeeModel.find(pEmployee);
 }
 export {
     storeEmployee,

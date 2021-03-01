@@ -1,3 +1,4 @@
+//maintaining a uniform response structure, adding the cache-control, setting the response HTTP status, removing the undefined keys, etc are handled by the ApiResponse class itself.
 const httpStatus = {
     "100": {
         "code": "100",
@@ -490,7 +491,7 @@ const restFulAPI = {
         standardResponse.commonError(ctx, 400, errorMessage, errorDes, errorStack);
     },
     // e.g. lacks valid authentication credentials
-    Unauthorized: function (ctx, errorMessage, errorDes, errorStack) {
+    Unauthorized: function (ctx, errorMessage,businessCode, errorDes, errorStack) {
         standardResponse.commonError(ctx, 401, errorMessage, errorDes, errorStack);
     },
     // e.g. server refuses to authorize it

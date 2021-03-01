@@ -1,13 +1,14 @@
-import {findUsers, storeUser} from "../user/index.js";
+import {findUsers, storeUser, storeUserRefreshToken} from "../models/user/index.js";
 import {restFulAPI} from "../restful-api.js";
 import {createToken} from "../middlewares/jwt-auth.js";
 import {sendMessageThenGetReceiptIds, storePushToken} from "../push-notification/expo-push-notification.js";
 import {cancelAllAlertSettings, storeUniqueAlertQuickSettings, storeUniqueAlertSetting} from "../push-notification/alert-setting.js";
 import {getCurPrice} from "../push-notification/ws-bitcoin-push.js";
 import {findEmployees} from "../models/employee/index.js";
-import {findNearbyFilms} from "../nearby-film/index.js";
+import {findNearbyFilms} from "../models/nearby-film/index.js";
 import KoaRouter from '@koa/router'
 import koaPagination from 'koa-pagination'
+import {verifyRefreshToken} from "../middlewares/jwt-auth.js";
 
 const bunnyRouter = new KoaRouter();
 
@@ -35,7 +36,7 @@ bunnyRouter.post('/auth/register', async (ctx, next) => {
 
 })
 
-bunnyRouter.post('/auth/login', async (ctx, next) => {
+bunnyRouter.put('/auth/login', async (ctx, next) => {
     const {request} = ctx;
     const {email, password} = request.body;
     const exist = await findUsers({email, password});
@@ -43,9 +44,30 @@ bunnyRouter.post('/auth/login', async (ctx, next) => {
         restFulAPI.Unauthorized(ctx, 'Incorrect email or password')
     } else {
         const user = exist[0]
-        const access_token = createToken({email, password})
+        console.log('---/auth/login user', user)
+        const {access_token, refresh_token} = createToken({email, password})
+        const savedUserRefreshToken = await storeUserRefreshToken(user, refresh_token)
+        if(savedUserRefreshToken){
+            const {nickname} = user;
+            restFulAPI.Success(ctx, {access_token, refresh_token, "user": {email, nickname}})
+        }else{
+            restFulAPI.businessError(ctx,'Can not update refresh_token')
+        }
+    }
+})
+
+bunnyRouter.put('/auth/refresh', async (ctx, next) => {
+    const {request} = ctx;
+    console.log('---/auth/refresh',request.params.access_token)
+    const verifyRefreshTokenResult = await verifyRefreshToken(ctx);
+    if (!verifyRefreshTokenResult.isValid) {
+        restFulAPI.Unauthorized(ctx, verifyRefreshTokenResult.message)
+    } else {
+        const user = verifyRefreshTokenResult
+        const {email, password} = user;
+        const {access_token} = createToken({email, password})
         const {nickname} = user;
-        restFulAPI.Success(ctx, {"access_token": access_token, "user": {email, nickname}})
+        restFulAPI.Success(ctx, {access_token,  "user": {email, nickname}})
     }
 })
 
@@ -94,7 +116,8 @@ bunnyRouter.post('/push-service/sendings', async (ctx, next) => {
 // todo employees?sort=+author,-datepublished
 bunnyRouter.get('/employees', async (ctx, next) => {
     const employees = await findEmployees({})
-    restFulAPI.Success(ctx,employees)
+    console.log('---employees',employees)
+    restFulAPI.Success(ctx, employees)
 })
 
 bunnyRouter.get('/nearby-films', async (ctx, next) => {
@@ -102,11 +125,10 @@ bunnyRouter.get('/nearby-films', async (ctx, next) => {
     restFulAPI.Success(ctx, nearbyFilms)
 })
 
-bunnyRouter.get('/demo-sagas', koaPagination.middleware(),async (ctx, next) => {
-    console.log('---ctx.pagination',ctx.pagination)
-    restFulAPI.Success(ctx, [{id:1,text:'saga1'},{id:2,text:'saga2'}])
+bunnyRouter.get('/demo-sagas', koaPagination.middleware(), async (ctx, next) => {
+    console.log('---ctx.pagination', ctx.pagination)
+    restFulAPI.Success(ctx, [{id: 1, text: 'saga1'}, {id: 2, text: 'saga2'}])
 })
-
 
 
 export {bunnyRouter}

@@ -7,6 +7,7 @@ const UserSchema = new Schema({
     _id: ObjectId,
     token: String,
     email: String,
+    refresh_token:String,
     password: String,
     nickname: String
 });

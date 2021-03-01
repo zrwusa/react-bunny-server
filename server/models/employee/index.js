@@ -1,7 +1,7 @@
-import {Employee}  from './schema.js'
+import {EmployeeModel}  from './schema.js'
 import {storeEmployee, findEmployees}  from './control.js'
 export {
-    Employee,
+    EmployeeModel,
     storeEmployee,
     findEmployees
 }

@@ -23,7 +23,7 @@ app.use(bunnyAPIMiddleware());
 app.use(koaBodyParser())
 
 app.use(jwtAuth()
-    .unless({path: ['/employees', '/auth/login', '/auth/register']}));
+    .unless({path: ['/auth/login', '/auth/register','/auth/refresh']}));
 
 app.use(bunnyRouter.routes())
     .use(bunnyRouter.allowedMethods({throw: true})); // The 405 is handled in allowedMethods.
