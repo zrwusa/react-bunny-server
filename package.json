@@ -1,19 +1,14 @@
 {
   "type": "module",
   "scripts": {
-    "serve": "pm2 start ./server/app.js",
-    "stop": "pm2 stop ./server/app.js",
-    "start": "node ./server/app.js"
+    "serve": "pm2 start src/app.js",
+    "stop": "pm2 stop src/app.js",
+    "start": "node src/app.js"
   },
   "dependencies": {
     "@koa/cors": "^3.1.0",
     "@koa/router": "^10.0.0",
-    "body-parser": "^1.19.0",
     "expo-server-sdk": "^3.6.0",
-    "express": "^4.17.1",
-    "express-validator": "^6.9.2",
-    "http-server": "^0.12.3",
-    "json-server": "^0.16.3",
     "jsonwebtoken": "^8.5.1",
     "koa": "^2.13.1",
     "koa-bodyparser": "^4.3.0",
