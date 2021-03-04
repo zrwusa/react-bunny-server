@@ -1,8 +1,8 @@
 import {sendMessageThenGetReceiptIds} from "../../helpers/expo-push-notification.js"
-import WebSocket from 'ws'
-import {AlertSettingModel} from '../../models/push-notification/alert-setting/schema.js'
-import {judgePrice} from '../../helpers/helpers.js'
-import {toMilliSeconds} from '../../utils/utils.js'
+import WebSocket from "ws"
+import {AlertSettingModel} from "../../models/push-notification/alert-setting/schema.js"
+import {judgePrice} from "../../helpers/helpers.js"
+import {toMilliSeconds} from "../../utils/utils.js"
 
 let curPrice = 0;
 export const startListenAndPush = async (shouldSend = false) => {

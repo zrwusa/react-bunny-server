@@ -1,5 +1,5 @@
-import mongoose from 'mongoose'
-import {UserModel} from '../../models/user/schema.js'
+import mongoose  from "mongoose"
+import {UserModel} from "../../models/user/schema.js"
 
 export const storeUser = async (pUser) => {
     const exist = await UserModel.find(pUser)

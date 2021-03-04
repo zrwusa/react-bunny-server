@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+import mongoose  from "mongoose"
 import {EmployeeModel} from '../../models/employee/schema.js'
 import {restFulAPI} from "../../helpers/restful-api.js";
 

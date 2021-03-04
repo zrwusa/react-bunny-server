@@ -1,22 +1,22 @@
-import fs from 'fs'
-import koaBodyParser from 'koa-bodyparser'
-import cors from '@koa/cors'
+import fs from "fs"
+import Koa from "koa"
+import koaBodyParser from "koa-bodyparser"
+import cors from "@koa/cors"
 import path from "path"
 import https from "https"
 import config from "./config.js"
-import {jwtAuth} from './middlewares/jwt-auth.js'
-import {bunnyAPIMiddleware} from './middlewares/bunny-api.js'
-import {bunnyRouter} from './routers/bunny-api.js'
-import {startListenAndPush} from './controllers/push-notification/ws-bitcoin-push.js'
-import './helpers/db-connect.js'
+import {jwtAuth} from "./middlewares/jwt-auth.js"
+import {bunnyAPIMiddleware} from "./middlewares/bunny-api.js"
+import {bunnyRouter} from "./routers/bunny-api.js"
+import {startListenAndPush} from "./controllers/push-notification/ws-bitcoin-push.js"
+import "./helpers/db-connect.js"
 
-
-import Koa from 'koa'
 // todo apicache
 // todo api version
 const app = new Koa();
 
 app.use(cors());
+
 app.use(bunnyAPIMiddleware());
 
 app.use(koaBodyParser())

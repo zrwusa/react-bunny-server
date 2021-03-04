@@ -1,5 +1,5 @@
 import {restFulAPI} from "../helpers/restful-api.js"
-import {bunnyAPI} from '../helpers/api-protocol.js'
+import {bunnyAPI} from "../helpers/api-protocol.js"
 
 export const bunnyAPIMiddleware = () => {
     return async (ctx, next) => {

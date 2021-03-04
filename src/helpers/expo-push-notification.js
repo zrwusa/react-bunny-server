@@ -1,6 +1,6 @@
 import ExpoSDK from "expo-server-sdk"
-import mongoose from 'mongoose'
-import {NotificationTokenModel} from '../models/push-notification/token/schema.js'
+import mongoose  from "mongoose"
+import {NotificationTokenModel} from "../models/push-notification/token/schema.js"
 
 const expo = new ExpoSDK.Expo();
 

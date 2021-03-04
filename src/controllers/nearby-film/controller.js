@@ -1,5 +1,5 @@
-import mongoose from 'mongoose'
-import {NearbyFilmModel} from '../../models/nearby-film/schema.js'
+import mongoose  from "mongoose"
+import {NearbyFilmModel} from "../../models/nearby-film/schema.js"
 import {restFulAPI} from "../../helpers/restful-api.js";
 
 const storeNearbyFilm = async (pNearbyFilm) => {

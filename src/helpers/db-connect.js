@@ -1,4 +1,4 @@
-import mongoose  from 'mongoose'
+import mongoose  from "mongoose"
 
 // const connectDB = async function () {
 // mongodb+srv://expo_react_bunny:<password>@cluster0.xsvie.mongodb.net/<dbname>?retryWrites=true&w=majority
