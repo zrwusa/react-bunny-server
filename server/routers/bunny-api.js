@@ -20,18 +20,18 @@ bunnyRouter.post('/auth/register', async (ctx, next) => {
     const {request} = ctx;
     const {email, password} = request.body;
     const exist = await findUsers({email, password});
+    console.log('---/auth/register exist',exist)
     if (exist.length > 0) {
         // 409 or 201 or 200 with indicating own status
         // (Gmail (Google) returns a 200 OK and a JSON object containing a code which is indicating that the email is already registered.
         // Facebook is also returning a 200 OK but re-renders the content to a recovery page to give the user the option to recover his/her existing account.
         // Twitter is validating the existing email by an AJAX call To another resource. The response of the email validation resource is always a 200 OK. The response contains a JSON object containing a flag to indicate if the email is already registered or not.
         // Amazon is doing it the same way as Facebook. Returning a 200 OK and re-rendering the content to a notification page to inform the user that the account already exists and provide him/her possibilities to take further actions like login or password change.)
-        restFulAPI.kick409(ctx, 'User info all ready exists')
+        restFulAPI.kick409(ctx, 'User info already exists')
     } else {
-        const saved = await storeUser({email, password});
-        const access_token = createToken({email, password})
-        const {nickname} = saved[0];
-        restFulAPI.Success(ctx, {"access_token": access_token, "user": {email, nickname}})
+        const {access_token,refresh_token} = createToken({email, password})
+        const saved = await storeUser({email, password,refresh_token});
+        restFulAPI.Success(ctx, {"access_token": access_token,"refresh_token":refresh_token, "user": {email}})
     }
 
 })
