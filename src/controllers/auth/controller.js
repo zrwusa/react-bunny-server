@@ -1,12 +1,11 @@
-import {restFulAPI} from "../../helpers/restful-api.js";
 import {blInfo, BLStatuses, blSuccess} from "../../helpers/business-logic.js";
 import {findOneUser, findUsers, storeUser, storeUserRefreshToken} from "../user/controller.js";
 import jwt from "jsonwebtoken";
 
 const SECRET_KEY = '60409fbbfb8fa21b381cf3a3'
-const ACCESS_TOKEN_EXPIRES_IN = '3s'
+const ACCESS_TOKEN_EXPIRES_IN = '24h'
 const REFRESH_TOKEN_SECRET_KEY = 'oT1TDBCO7jtDytecDBmKWW'
-const REFRESH_TOKEN_EXPIRES_IN = '20s'
+const REFRESH_TOKEN_EXPIRES_IN = '7d'
 
 export const createAccessToken = (payload) => {
     return jwt.sign(payload, SECRET_KEY, {expiresIn: ACCESS_TOKEN_EXPIRES_IN})
@@ -22,7 +21,7 @@ export const verifyAccessToken = (token) => {
             return blSuccess(decode)
         }
         const {name, message} = err;
-        return blInfo(message, name, err)
+        return blInfo(message, name)
     })
 }
 
@@ -32,31 +31,10 @@ export const verifyRefreshToken = (token) => {
             return blSuccess(decode)
         }
         const {name, message} = err;
-        return blInfo(message, name, err)
+        return blInfo(message, name)
     })
 }
 
-const verifyRefreshTokenFromHeader = async (ctx) => {
-    const {request} = ctx
-    if (request.headers.authorization === undefined || request.headers.authorization.split(' ')[0] !== 'Bearer') {
-        return blInfo(BLStatuses.REFRESH_TOKEN_NOT_PROVIDED)
-    }
-    const refresh_token = request.headers.authorization.split(' ')[1];
-    const verifyTokenResult = verifyRefreshToken(refresh_token)
-    const {success, code, message} = verifyTokenResult;
-    if (!success) {
-        switch (code) {
-            case 'TokenExpiredError':
-                return blInfo(BLStatuses.AUTH_FORMAT_ERROR_REFRESH_TOKEN)
-            case 'JsonWebTokenError':
-                return blInfo(message)
-            default:
-                return blInfo(message)
-        }
-    }
-    const user = await findOneUser({refresh_token: refresh_token});
-    return blSuccess(user)
-}
 // Register New User
 // todo a normal user shouldn’t be able to access information of another user. They also shouldn’t be able to access data of admins.
 // todo To enforce the principle of least privilege, we need to add role checks either for a single role, or have more granular roles for each user.
@@ -73,12 +51,12 @@ export const register = async (ctx) => {
         // Facebook is also returning a 200 OK but re-renders the content to a recovery page to give the user the option to recover his/her existing account.
         // Twitter is validating the existing email by an AJAX call To another resource. The response of the email validation resource is always a 200 OK. The response contains a JSON object containing a flag to indicate if the email is already registered or not.
         // Amazon is doing it the same way as Facebook. Returning a 200 OK and re-rendering the content to a notification page to inform the user that the account already exists and provide him/her possibilities to take further actions like login or password change.)
-        restFulAPI.kick409(ctx, BLStatuses.USER_EXISTS)
+        ctx.throw(409, BLStatuses.USER_EXISTS)
     } else {
-        const access_token = createAccessToken({email, password})
-        const refresh_token = createRefreshToken({email, password})
-        await storeUser({email, password, refresh_token});
-        restFulAPI.Success(ctx, {access_token, refresh_token, "user": {email}})
+        const accessToken = createAccessToken({email, password})
+        const refreshToken = createRefreshToken({email, password})
+        await storeUser({email, password, refreshToken});
+        ctx.body = {accessToken, refreshToken, "user": {email}}
     }
 }
 
@@ -87,40 +65,47 @@ export const login = async (ctx) => {
     const {email, password} = request.body;
     const exist = await findOneUser({email, password});
     if (!exist) {
-        restFulAPI.Unauthorized(ctx, BLStatuses.INCORRECT_EMAIL_OR_PASSWORD)
+        ctx.throw(401, BLStatuses.INCORRECT_EMAIL_OR_PASSWORD)
     }
     const user = exist
-    const access_token = createAccessToken({email, password})
-    const refresh_token = createRefreshToken({email, password})
-    const savedUserRefreshToken = await storeUserRefreshToken(user, refresh_token)
+    const accessToken = createAccessToken({email, password})
+    const refreshToken = createRefreshToken({email, password})
+    const savedUserRefreshToken = await storeUserRefreshToken(user, refreshToken)
     if (savedUserRefreshToken) {
-        restFulAPI.Success(ctx, {access_token, refresh_token, user: {email}})
+        ctx.body = {accessToken, refreshToken, user: {email}}
     } else {
-        restFulAPI.businessError(ctx, BLStatuses.CAN_NOT_UPDATE_REFRESH_TOKEN)
+        ctx.throw(422, BLStatuses.CAN_NOT_UPDATE_REFRESH_TOKEN)
     }
 }
 
 export const refresh = async (ctx) => {
-    const verifyRefreshTokenResult = await verifyRefreshTokenFromHeader(ctx);
-    const {success,data,message,code} = verifyRefreshTokenResult
-    if (!success) {
-        // switch (code) {
-        //     case 'TokenExpiredError':
-        //         restFulAPI.Unauthorized(ctx, message)
-        //         break;
-        //     case 'JsonWebTokenError':
-        //         restFulAPI.Unauthorized(ctx, message)
-        //         break;
-        //     case 'NotBeforeError':
-        //         restFulAPI.Unauthorized(ctx, message)
-        //         break;
-        //     default:
-        //         restFulAPI.Unauthorized(ctx, message)
-        //         break;
-        // }
-        restFulAPI.Unauthorized(ctx, message)
+    const {request} = ctx
+    if (request.headers.authorization === undefined || request.headers.authorization.split(' ')[0] !== 'Bearer') {
+        return blInfo(BLStatuses.REFRESH_TOKEN_NOT_PROVIDED)
     }
-    const {email, password} = data;
-    const access_token = createAccessToken({email, password})
-    restFulAPI.Success(ctx, {access_token, user: {email}})
+    const refreshToken = request.headers.authorization.split(' ')[1];
+    const {success, code} = verifyRefreshToken(refreshToken)
+    if (!success) {
+        switch (code) {
+            case 'TokenExpiredError':
+                ctx.throw(401, BLStatuses.REFRESH_TOKEN_EXPIRED);
+                break;
+            case 'JsonWebTokenError':
+                ctx.throw(401, BLStatuses.REFRESH_TOKEN_MALFORMED)
+                break;
+            case 'NotBeforeError':
+                ctx.throw(401, BLStatuses.REFRESH_TOKEN_NOT_BEFORE)
+                break;
+            default:
+                ctx.throw(401, BLStatuses.REFRESH_TOKEN_VERIFY_UNKNOWN)
+                break;
+        }
+    }
+    const user = await findOneUser({refreshToken});
+    if (!user) {
+        ctx.throw(422, BLStatuses.NULL_USER)
+    }
+    const {email, password} = user;
+    const accessToken = createAccessToken({email, password})
+    ctx.body = {accessToken, user: {email}}
 }

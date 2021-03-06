@@ -75,7 +75,7 @@ export const startListenAndPush = async (shouldSend = false) => {
                     if (judgedResult.comparingResult && !alertSetting.isBegin) {
                         if (shouldSend) {
                             alertSetting.isBegin = true
-                            const modified = await alertSetting.save()
+                            // const modified = await alertSetting.save()
 
                             let times = 1;
                             alertSetting.notificationTimes--
@@ -92,8 +92,6 @@ export const startListenAndPush = async (shouldSend = false) => {
                         }
                     }
                 }
-            } else {
-                console.error('---alertSettings is not an array')
             }
         }
         // console.log('---func diff',new Date().getMilliseconds()-startTime)
@@ -110,7 +108,7 @@ export const startListenAndPush = async (shouldSend = false) => {
     ws.addEventListener('error', onWSError)
 
     const onWSClose = (e) => {
-        console.log('---onWSClose', e);
+        console.log('---onWSClose', JSON.stringify(e));
     };
 
     ws.addEventListener('close', onWSClose)

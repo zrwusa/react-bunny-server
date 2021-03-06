@@ -1,6 +1,5 @@
-import mongoose  from "mongoose"
+import mongoose from "mongoose"
 import {EmployeeModel} from '../../models/employee/schema.js'
-import {restFulAPI} from "../../helpers/restful-api.js";
 
 const storeEmployee = async (pEmployee) => {
     const exist = await EmployeeModel.find(pEmployee)
@@ -19,8 +18,5 @@ const findEmployees = async (pEmployee) => {
 }
 
 export const find = async (ctx) => {
-    const employees = await findEmployees({})
-    restFulAPI.kick503(ctx,'xxx')
-
-    // restFulAPI.Success(ctx, employees)
+    ctx.body = await findEmployees({})
 }

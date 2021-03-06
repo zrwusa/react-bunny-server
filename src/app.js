@@ -30,7 +30,7 @@ app.use(bunnyRouter.routes())
 // app.on('error', (err, ctx) => {
 //     console.log('app.on error',JSON.stringify(err))
 // });
-startListenAndPush(true).then()
+startListenAndPush(false).then()
 
 const {localBackEnd, remoteBackEnd, isHttps} = config;
 const keyFile = path.resolve('.expo/web/development/ssl', 'key-localhost.pem');

@@ -1,6 +1,5 @@
-import mongoose  from "mongoose"
+import mongoose from "mongoose"
 import {NearbyFilmModel} from "../../models/nearby-film/schema.js"
-import {restFulAPI} from "../../helpers/restful-api.js";
 
 const storeNearbyFilm = async (pNearbyFilm) => {
     const exist = await NearbyFilmModel.find(pNearbyFilm)
@@ -22,6 +21,5 @@ export const findNearbyFilms = async (pNearbyFilm) => {
 }
 
 export const find = async (ctx) => {
-    const nearbyFilms = await findNearbyFilms({})
-    restFulAPI.Success(ctx, nearbyFilms)
+    ctx.body = await findNearbyFilms({})
 }

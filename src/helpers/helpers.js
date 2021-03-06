@@ -31,6 +31,6 @@ export const judgePrice = (nowPrice, alertSetting) => {
             alertMsg = `default comparing`
             break
     }
-    return {comparingResult,alertMsg}
+    return {comparingResult, alertMsg}
 }
 

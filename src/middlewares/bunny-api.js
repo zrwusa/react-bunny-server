@@ -1,9 +1,81 @@
-import {restFulAPI} from "../helpers/restful-api.js"
-import {bunnyAPI} from "../helpers/api-protocol.js"
+import {HttpStatus} from "../helpers/restful-api.js";
 
+const bunnyAPIConfig = {
+    successData: "`${data}`",
+    httpExtra: {
+        code: "`${(status}`' : ''",
+        message: "HttpStatus[`${(status}`.toString()].phrase || '' : ''",
+        description: "HttpStatus[`${(status}`.toString()].description || '' : ''",
+        errorCode: '',
+        errorMessage: '',
+        errorDescription: '',
+        errorStack: '',
+    },
+    businessLogic: {
+        code: "'B' + `${(status}`",
+        message: "`${(message}` || ''",
+        description: "`${(message}` || ''",
+        errorCode: '',
+        errorMessage: '',
+        errorDescription: '',
+        errorStack: '',
+    }
+}
+
+export const bunnyAPI = {
+    constructSuccessBody: (ctx, status, data, timeSpent) => {
+        return {
+            timeSpent,
+            successData: data,
+            httpExtra: {
+                code: status || '',
+                message: HttpStatus[status.toString()].phrase || '',
+                description: HttpStatus[status.toString()].description || '',
+                errorCode: '',
+                errorMessage: '',
+                errorDescription: '',
+                errorStack: '',
+            },
+            businessLogic: {
+                code: 'BL_BUNNY_DEFAULT_AS_HTTP_' + status || '',
+                message: '',
+                description: '',
+                errorCode: '',
+                errorMessage: '',
+                errorDescription: '',
+                errorStack: '',
+            }
+        };
+    },
+    constructErrorBody: (ctx, status, error, timeSpent) => {
+        const {message, code, errorDes, errorStack} = error;
+        return {
+            timeSpent,
+            successData: null,
+            httpExtra: {
+                code: '',
+                message: '',
+                description: '',
+                errorCode: status || '',
+                errorMessage: HttpStatus[status.toString()].phrase || '',
+                errorDescription: HttpStatus[status.toString()].description || '',
+                errorStack: '',
+            },
+            businessLogic: {
+                code: '',
+                message: '',
+                description: '',
+                errorCode: code || 'B' + status || '',
+                errorMessage: message || '',
+                errorDescription: errorDes || '',
+                errorStack: errorStack || '',
+            }
+        }
+    }
+}
 export const bunnyAPIMiddleware = () => {
     return async (ctx, next) => {
-        const created_at = new Date().getTime();
+        const startTime = new Date().getTime();
         try {
             await next();
             // todo 204,205 koa does not allow to modify the ctx.body
@@ -12,18 +84,13 @@ export const bunnyAPIMiddleware = () => {
             }
             // catch 404 and forward to error handler
             if (ctx.status === 404) {
-                restFulAPI.kick404(ctx)
+                ctx.throw(404)
             } else {
-                let body = bunnyAPI.constructSuccessBody(ctx, ctx.status, ctx.body);
-                body.time_spend = new Date().getTime() - created_at;
-                ctx.body = body;
+                ctx.body = bunnyAPI.constructSuccessBody(ctx, ctx.status, ctx.body, new Date().getTime() - startTime);
             }
         } catch (err) {
             ctx.status = err.statusCode || err.status || 500;
-            console.log('---err',err)
-            let body = bunnyAPI.constructErrorBody(ctx, ctx.status, err.message, err.des, err.stack);
-            body.time_spend = new Date().getTime() - created_at;
-            ctx.body = body;
+            ctx.body = bunnyAPI.constructErrorBody(ctx, ctx.status, err, new Date().getTime() - startTime);
             // emit error to koa
             ctx.app.emit('error', err, ctx);
         }

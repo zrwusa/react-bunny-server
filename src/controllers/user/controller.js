@@ -1,4 +1,4 @@
-import mongoose  from "mongoose"
+import mongoose from "mongoose"
 import {UserModel} from "../../models/user/schema.js"
 
 export const storeUser = async (pUser) => {
@@ -9,19 +9,19 @@ export const storeUser = async (pUser) => {
         user.email = pUser.email;
         user.password = pUser.password;
         user.nickname = pUser.nickname;
-        user.refresh_token = pUser.refresh_token;
+        user.refreshToken = pUser.refreshToken;
         return await user.save();
     } else {
         return exist;
     }
 }
 
-export const storeUserRefreshToken = async (pUser, refresh_token) => {
+export const storeUserRefreshToken = async (pUser, refreshToken) => {
     const {_id} = pUser
     let filter = {_id};
     const exist = await UserModel.findOne(filter);
     if (exist) {
-        exist.refresh_token = refresh_token;
+        exist.refreshToken = refreshToken;
         return await exist.save();
     } else {
         return null

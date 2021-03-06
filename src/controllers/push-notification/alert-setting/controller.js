@@ -2,7 +2,6 @@ import {assignToModelInstance} from "../../../utils/utils.js";
 import mongoose from "mongoose";
 import {AlertSettingModel} from "../../../models/push-notification/alert-setting/schema.js";
 import {getCurPrice} from "../ws-bitcoin-push.js";
-import {restFulAPI} from "../../../helpers/restful-api.js";
 import {BLStatuses} from "../../../helpers/business-logic.js";
 
 export const storeUniqueAlertSetting = async (alertSetting) => {
@@ -52,29 +51,27 @@ export const cancelAllAlertSettings = async (token) => {
     return AlertSettingModel.deleteMany({token})
 }
 
-export const addAlertQuickSettings = async (ctx, next) => {
+export const addAlertQuickSettings = async (ctx) => {
     const {request} = ctx;
     const {token, granularity} = request.body;
     const curPrice = getCurPrice()
     if (curPrice) {
         const stored = await storeUniqueAlertQuickSettings(curPrice, token, granularity)
-        restFulAPI.Success(ctx, stored)
+        ctx.body = stored
     } else {
-        restFulAPI.businessError(ctx, BLStatuses.NO_CUR_PRICE)
+        ctx.throw(422, BLStatuses.NO_CUR_PRICE)
     }
 }
 
 export const addAlertSettings = async (ctx) => {
     const {request} = ctx;
     const {alertSetting} = request.body;
-    const stored = await storeUniqueAlertSetting(alertSetting);
-    restFulAPI.Success(ctx, stored)
+    ctx.body = await storeUniqueAlertSetting(alertSetting);
 }
 
 export const deleteAlertSettings = async (ctx) => {
     const {request} = ctx;
-    const {token} = request.params;
-    const canceled = await cancelAllAlertSettings(token)
-    restFulAPI.Success(ctx, canceled)
+    const {token} = request.query;
+    ctx.body = await cancelAllAlertSettings(token)
 }
 
