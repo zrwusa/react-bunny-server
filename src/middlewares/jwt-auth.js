@@ -9,21 +9,26 @@ export const jwtAuth = () => {
         if (request.headers.authorization === undefined || request.headers.authorization.split(' ')[0] !== 'Bearer') {
             restFulAPI.Unauthorized(ctx, BLStatuses.ACCESS_TOKEN_NOT_PROVIDED);
         }
-        try {
-            let verifyTokenResult;
-            verifyTokenResult = verifyAccessToken(request.headers.authorization.split(' ')[1]);
-            if (verifyTokenResult instanceof Error) {
-                restFulAPI.kick403(ctx, BLStatuses.AUTH_FORMAT_ERROR_ACCESS_TOKEN);
-            } else {
-                await next()
-            }
-        } catch (err) {
-            if (err.message === 'Authorization expired') {
-                restFulAPI.kick403(ctx, BLStatuses.AUTH_EXPIRED);
-            } else {
-                restFulAPI.kick403(ctx, BLStatuses.INAPPROPRIATE_ACCESS_TOKEN, {originalError: err.toString()});
-            }
+        const verifyTokenResult = verifyAccessToken(request.headers.authorization.split(' ')[1]);
+        const {success, code, message} = verifyTokenResult;
+        if (!success) {
+            // switch (code) {
+            //     case 'TokenExpiredError':
+            //         restFulAPI.kick403(ctx, BLStatuses.ACCESS_TOKEN_EXPIRED);
+            //         break;
+            //     case 'JsonWebTokenError':
+            //         restFulAPI.kick403(ctx, message)
+            //         break;
+            //     case 'NotBeforeError':
+            //         restFulAPI.kick403(ctx, message)
+            //         break;
+            //     default:
+            //         restFulAPI.kick403(ctx, message)
+            //         break;
+            // }
+            restFulAPI.kick403(ctx, message)
         }
+        await next()
     }
     auth.unless = unless
     return auth;

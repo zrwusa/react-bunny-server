@@ -20,6 +20,7 @@ export const bunnyAPIMiddleware = () => {
             }
         } catch (err) {
             ctx.status = err.statusCode || err.status || 500;
+            console.log('---err',err)
             let body = bunnyAPI.constructErrorBody(ctx, ctx.status, err.message, err.des, err.stack);
             body.time_spend = new Date().getTime() - created_at;
             ctx.body = body;

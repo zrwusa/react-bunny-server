@@ -20,5 +20,7 @@ const findEmployees = async (pEmployee) => {
 
 export const find = async (ctx) => {
     const employees = await findEmployees({})
-    restFulAPI.Success(ctx, employees)
+    restFulAPI.kick503(ctx,'xxx')
+
+    // restFulAPI.Success(ctx, employees)
 }

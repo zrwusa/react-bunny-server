@@ -4,9 +4,9 @@ import {findOneUser, findUsers, storeUser, storeUserRefreshToken} from "../user/
 import jwt from "jsonwebtoken";
 
 const SECRET_KEY = '60409fbbfb8fa21b381cf3a3'
-const ACCESS_TOKEN_EXPIRES_IN = '1s'
+const ACCESS_TOKEN_EXPIRES_IN = '3s'
 const REFRESH_TOKEN_SECRET_KEY = 'oT1TDBCO7jtDytecDBmKWW'
-const REFRESH_TOKEN_EXPIRES_IN = '1h'
+const REFRESH_TOKEN_EXPIRES_IN = '20s'
 
 export const createAccessToken = (payload) => {
     return jwt.sign(payload, SECRET_KEY, {expiresIn: ACCESS_TOKEN_EXPIRES_IN})
@@ -17,27 +17,45 @@ export const createRefreshToken = (payload) => {
 
 // Verify the token
 export const verifyAccessToken = (token) => {
-    return jwt.verify(token, SECRET_KEY, (err, decode) => decode !== undefined ? decode : err)
+    return jwt.verify(token, SECRET_KEY, (err, decode) => {
+        if (decode !== undefined) {
+            return blSuccess(decode)
+        }
+        const {name, message} = err;
+        return blInfo(message, name, err)
+    })
 }
 
-const verifyRefreshToken = async (ctx) => {
+export const verifyRefreshToken = (token) => {
+    return jwt.verify(token, REFRESH_TOKEN_SECRET_KEY, (err, decode) => {
+        if (decode !== undefined) {
+            return blSuccess(decode)
+        }
+        const {name, message} = err;
+        return blInfo(message, name, err)
+    })
+}
+
+const verifyRefreshTokenFromHeader = async (ctx) => {
     const {request} = ctx
     if (request.headers.authorization === undefined || request.headers.authorization.split(' ')[0] !== 'Bearer') {
         return blInfo(BLStatuses.REFRESH_TOKEN_NOT_PROVIDED)
     }
-    try {
-        let verifyTokenResult;
-        const refresh_token = request.headers.authorization.split(' ')[1];
-        verifyTokenResult = jwt.verify(refresh_token, REFRESH_TOKEN_SECRET_KEY, (err, decode) => decode !== undefined ? decode : err)
-        const user = await findOneUser({refresh_token: refresh_token});
-        if (verifyTokenResult instanceof Error) {
-            return blInfo(BLStatuses.AUTH_FORMAT_ERROR_REFRESH_TOKEN)
+    const refresh_token = request.headers.authorization.split(' ')[1];
+    const verifyTokenResult = verifyRefreshToken(refresh_token)
+    const {success, code, message} = verifyTokenResult;
+    if (!success) {
+        switch (code) {
+            case 'TokenExpiredError':
+                return blInfo(BLStatuses.AUTH_FORMAT_ERROR_REFRESH_TOKEN)
+            case 'JsonWebTokenError':
+                return blInfo(message)
+            default:
+                return blInfo(message)
         }
-        return blSuccess(user)
-
-    } catch (err) {
-        return blInfo(BLStatuses.INAPPROPRIATE_REFRESH_TOKEN)
     }
+    const user = await findOneUser({refresh_token: refresh_token});
+    return blSuccess(user)
 }
 // Register New User
 // todo a normal user shouldn’t be able to access information of another user. They also shouldn’t be able to access data of admins.
@@ -83,12 +101,26 @@ export const login = async (ctx) => {
 }
 
 export const refresh = async (ctx) => {
-    const verifyRefreshTokenResult = await verifyRefreshToken(ctx);
-    if (!verifyRefreshTokenResult.success) {
-        restFulAPI.Unauthorized(ctx, verifyRefreshTokenResult.message)
+    const verifyRefreshTokenResult = await verifyRefreshTokenFromHeader(ctx);
+    const {success,data,message,code} = verifyRefreshTokenResult
+    if (!success) {
+        // switch (code) {
+        //     case 'TokenExpiredError':
+        //         restFulAPI.Unauthorized(ctx, message)
+        //         break;
+        //     case 'JsonWebTokenError':
+        //         restFulAPI.Unauthorized(ctx, message)
+        //         break;
+        //     case 'NotBeforeError':
+        //         restFulAPI.Unauthorized(ctx, message)
+        //         break;
+        //     default:
+        //         restFulAPI.Unauthorized(ctx, message)
+        //         break;
+        // }
+        restFulAPI.Unauthorized(ctx, message)
     }
-    const user = verifyRefreshTokenResult.data
-    const {email, password} = user;
+    const {email, password} = data;
     const access_token = createAccessToken({email, password})
     restFulAPI.Success(ctx, {access_token, user: {email}})
 }
