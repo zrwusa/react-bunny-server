@@ -45,7 +45,14 @@ export const startListenAndPush = async (shouldSend = false) => {
     const sendOrStop = async function (alertSetting, data, times, alertMsg, intervalHandle) {
         const {price} = data;
         let deleted = {}, result = {};
-        if (alertSetting.notificationTimes < 0) {
+        const timesUnit = times === 1 ? 'st' : times === 2 ? 'nd' : 'th';
+        const message = {
+            title: `Current price is ${price} 📬`,
+            body: `Current price ${price.toFixed(0)}${alertMsg} , ${times}${timesUnit} reminder 📬 `,
+            data: data
+        }
+        result = await sendMessageThenGetReceiptIds(message, [alertSetting.token]);
+        if (alertSetting.notificationTimes < 1) {
             deleted = await AlertSettingModel.deleteOne({_id: alertSetting._id})
             console.log('---needToBeSent.length before', needToBeSent.length)
             _.remove(needToBeSent, item => item.id === alertSetting.id)
@@ -53,14 +60,6 @@ export const startListenAndPush = async (shouldSend = false) => {
             if (intervalHandle) {
                 clearInterval(intervalHandle)
             }
-        } else {
-            const timesUnit = times===1?'st':times===2?'nd':'th';
-            const message = {
-                title: `Current price is ${price} 📬`,
-                body: `Current price ${price.toFixed(0)}${alertMsg} , ${times}${timesUnit} reminder 📬 `,
-                data: data
-            }
-            result = await sendMessageThenGetReceiptIds(message, [alertSetting.token]);
         }
         return {deleted, result}
     }
@@ -113,7 +112,7 @@ export const startListenAndPush = async (shouldSend = false) => {
     ws.addEventListener('message', onWSMessage)
 
     const onWSError = (error) => {
-        console.log('---onWSError',JSON.stringify(error))
+        console.log('---onWSError', JSON.stringify(error))
         if (reconnectTimes < reconnectTimesConfig) {
             ws.send(JSON.stringify(reconnectMsg))
         }
@@ -122,7 +121,7 @@ export const startListenAndPush = async (shouldSend = false) => {
     ws.addEventListener('error', onWSError)
 
     const onWSClose = (code, message) => {
-        console.log('---onWSClose',code, JSON.stringify(message));
+        console.log('---onWSClose', code, JSON.stringify(message));
         ws.send(JSON.stringify(subscribeMsg));
     };
 

@@ -133,12 +133,12 @@ export const BLStatuses = {
     // },
 }
 
-export const blInfo = (businessLogicMsg, businessLogicCode) => {
+export const blInfo = (blMsg, blCode) => {
     return {
         success: false,
         data: null,
-        message: businessLogicMsg,
-        code: businessLogicCode || '',
+        message: blMsg,
+        code: blCode || '',
     }
 }
 

@@ -16,7 +16,7 @@ export const storeUniqueAlertSetting = async (alertSetting) => {
     }
 }
 
-export const storeUniqueAlertQuickSettings = async (basePrice, token, granularity = 5) => {
+export const storeUniqueAlertQuickSettings = async (basePrice, token, granularity = 5,reminder={times:3,interval:'1s'}) => {
     const quickSettings = [];
     let bigger = 0;
     let smaller = 0;
@@ -34,8 +34,8 @@ export const storeUniqueAlertQuickSettings = async (basePrice, token, granularit
         }
         quickSetting.price = (basePrice * (100 + diff * granularity * 100 / 5) / 100).toFixed(2);
         quickSetting.comparator = comparator;
-        quickSetting.notificationTimes = 3;
-        quickSetting.notificationInterval = '1s';
+        quickSetting.notificationTimes = reminder.times;
+        quickSetting.notificationInterval = reminder.interval;
         quickSetting.isBegin = false;
         quickSetting.token = token;
         const start = new Date();
@@ -53,10 +53,10 @@ export const cancelAllAlertSettings = async (token) => {
 
 export const addAlertQuickSettings = async (ctx) => {
     const {request} = ctx;
-    const {token, granularity} = request.body;
+    const {token, granularity,reminder} = request.body;
     const curPrice = getCurPrice()
     if (curPrice) {
-        ctx.body = await storeUniqueAlertQuickSettings(curPrice, token, granularity)
+        ctx.body = await storeUniqueAlertQuickSettings(curPrice, token, granularity,reminder)
     } else {
         ctx.throw(422, BLStatuses.NO_CUR_PRICE)
     }
