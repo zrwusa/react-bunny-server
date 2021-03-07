@@ -3,8 +3,11 @@ import WebSocket from "ws"
 import {AlertSettingModel} from "../../models/push-notification/alert-setting/schema.js"
 import {judgePrice} from "../../helpers/helpers.js"
 import {toMilliSeconds} from "../../utils/utils.js"
+import _ from "lodash"
 
 let curPrice = 0;
+let needToBeSent = []
+
 export const startListenAndPush = async (shouldSend = false) => {
     const ws = new WebSocket('wss://ws.bitstamp.net');
 
@@ -33,7 +36,7 @@ export const startListenAndPush = async (shouldSend = false) => {
     const reconnectTimes = 0;
 
 
-    const onWSOpen = (e) => {
+    const onWSOpen = () => {
         console.log('---onWSOpen');
         ws.send(JSON.stringify(subscribeMsg));
     }
@@ -44,62 +47,73 @@ export const startListenAndPush = async (shouldSend = false) => {
         let deleted = {}, result = {};
         if (alertSetting.notificationTimes < 0) {
             deleted = await AlertSettingModel.deleteOne({_id: alertSetting._id})
+            console.log('---needToBeSent.length before', needToBeSent.length)
+            _.remove(needToBeSent, item => item.id === alertSetting.id)
+            console.log('---needToBeSent.length after', needToBeSent.length)
             if (intervalHandle) {
                 clearInterval(intervalHandle)
             }
         } else {
+            const timesUnit = times===1?'st':times===2?'nd':'th';
             const message = {
-                title: `Price is ${price} 📬`,
-                body: `Price is ${price.toFixed(0)},Alert: ${alertMsg} ,Re Try Times: ${times}`,
+                title: `Current price is ${price} 📬`,
+                body: `Current price ${price.toFixed(0)}${alertMsg} , ${times}${timesUnit} reminder 📬 `,
                 data: data
             }
             result = await sendMessageThenGetReceiptIds(message, [alertSetting.token]);
         }
         return {deleted, result}
     }
-    const onWSMessage = async (e) => {
-        const startTime = new Date().getMilliseconds()
-        // console.log('---onWSMessage');
-        const data = JSON.parse(e.data).data;
+
+    const synchronizeAlertSettings = async () => {
+        const alertSettings = await AlertSettingModel.find()
+        const needToAddTo = _.differenceBy(alertSettings, needToBeSent, 'id')
+        const needToBeRemoved = _.differenceBy(needToBeSent, alertSettings, 'id')
+        needToBeSent = needToBeSent.filter(item => !needToBeRemoved.includes(item))
+        console.log('---alertSettings,needToBeSent,needToBeRemoved,needToAddTo', alertSettings.length, needToBeSent.length, needToBeRemoved.length, needToAddTo.length)
+        needToBeSent = [...needToBeSent, ...needToAddTo]
+    }
+
+    // setInterval(async () => {
+    //     await synchronizeAlertSettings()
+    // }, 1000)
+
+    const onWSMessage = async (message) => {
+        await synchronizeAlertSettings()
+        console.log('---onWSMessage');
+        const data = JSON.parse(message.data).data;
         const nowPrice = data.price;
         curPrice = nowPrice;
-        if (nowPrice) {
-            const alertSettings = await AlertSettingModel.find()
-            // console.log('---find diff',new Date().getMilliseconds()-startTime)
-            if (alertSettings instanceof Array) {
-                for (let i in alertSettings) {
-                    const alertSetting = alertSettings[i];
-                    const judgedResult = judgePrice(nowPrice, alertSetting);
-                    // console.log('---judgedResult',judgedResult)
-
-                    if (judgedResult.comparingResult && !alertSetting.isBegin) {
-                        if (shouldSend) {
-                            alertSetting.isBegin = true
-                            // const modified = await alertSetting.save()
-
-                            let times = 1;
-                            alertSetting.notificationTimes--
-
-                            await sendOrStop(alertSetting, data, times, judgedResult.alertMsg)
-
-                            const intervalHandle = setInterval(async () => {
-                                if (alertSetting.isBegin) {
-                                    times++
-                                    alertSetting.notificationTimes--
-                                    await sendOrStop(alertSetting, data, times, judgedResult.alertMsg, intervalHandle)
-                                }
-                            }, toMilliSeconds(alertSetting.notificationInterval))
-                        }
-                    }
-                }
-            }
+        if (!shouldSend || !nowPrice || !(needToBeSent instanceof Array)) {
+            return
         }
-        // console.log('---func diff',new Date().getMilliseconds()-startTime)
+        for (let i in needToBeSent) {
+            const alertSetting = needToBeSent[i];
+            if (!alertSetting) {
+                continue;
+            }
+            const judgedResult = judgePrice(nowPrice, alertSetting);
+            if (judgedResult.comparingResult && !alertSetting.isBegin) {
+                alertSetting.isBegin = true
+                let times = 1;
+                alertSetting.notificationTimes--
+                await sendOrStop(alertSetting, data, times, judgedResult.alertMsg)
+                const intervalHandle = setInterval(async () => {
+                    if (alertSetting.isBegin) {
+                        times++
+                        alertSetting.notificationTimes--
+                        await sendOrStop(alertSetting, data, times, judgedResult.alertMsg, intervalHandle)
+                    }
+                }, toMilliSeconds(alertSetting.notificationInterval))
+            }
+
+        }
     };
 
     ws.addEventListener('message', onWSMessage)
 
-    const onWSError = (e) => {
+    const onWSError = (error) => {
+        console.log('---onWSError',JSON.stringify(error))
         if (reconnectTimes < reconnectTimesConfig) {
             ws.send(JSON.stringify(reconnectMsg))
         }
@@ -107,8 +121,9 @@ export const startListenAndPush = async (shouldSend = false) => {
 
     ws.addEventListener('error', onWSError)
 
-    const onWSClose = (e) => {
-        console.log('---onWSClose', JSON.stringify(e));
+    const onWSClose = (code, message) => {
+        console.log('---onWSClose',code, JSON.stringify(message));
+        ws.send(JSON.stringify(subscribeMsg));
     };
 
     ws.addEventListener('close', onWSClose)

@@ -56,8 +56,7 @@ export const addAlertQuickSettings = async (ctx) => {
     const {token, granularity} = request.body;
     const curPrice = getCurPrice()
     if (curPrice) {
-        const stored = await storeUniqueAlertQuickSettings(curPrice, token, granularity)
-        ctx.body = stored
+        ctx.body = await storeUniqueAlertQuickSettings(curPrice, token, granularity)
     } else {
         ctx.throw(422, BLStatuses.NO_CUR_PRICE)
     }
