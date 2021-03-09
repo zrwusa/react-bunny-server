@@ -33,6 +33,6 @@ bunnyRouter.get('/bitcoin-prices', bitcoinPriceCtrl.find)
 
 // todo filtering, sorting, and pagination
 // todo employees?sort=+author,-datepublished
-bunnyRouter.get('/demo-sagas', koaPagination.middleware(), async (ctx, next) => {
+bunnyRouter.get('/demo-sagas', koaPagination.middleware(), async (ctx) => {
     ctx.body = [{id: 1, text: 'saga1'}, {id: 2, text: 'saga2'}]
 })

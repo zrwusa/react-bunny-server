@@ -35,7 +35,6 @@ export const startListenAndPush = async (shouldSend = false) => {
     const reconnectTimesConfig = 3;
     const reconnectTimes = 0;
 
-
     const onWSOpen = () => {
         console.log('---onWSOpen');
         ws.send(JSON.stringify(subscribeMsg));
@@ -51,17 +50,18 @@ export const startListenAndPush = async (shouldSend = false) => {
             body: `Current price ${price.toFixed(0)}${alertMsg} , ${times}${timesUnit} reminder 📬 `,
             data: data
         }
-        result = await sendMessageThenGetReceiptIds(message, [alertSetting.token]);
-        if (alertSetting.notificationTimes < 1) {
+        if (alertSetting.notificationTimes < 0) {
             deleted = await AlertSettingModel.deleteOne({_id: alertSetting._id})
-            console.log('---needToBeSent.length before', needToBeSent.length)
             _.remove(needToBeSent, item => item.id === alertSetting.id)
-            console.log('---needToBeSent.length after', needToBeSent.length)
             if (intervalHandle) {
                 clearInterval(intervalHandle)
             }
+            return {deleted, result}
         }
+
+        result = await sendMessageThenGetReceiptIds(message, [alertSetting.token]);
         return {deleted, result}
+
     }
 
     const synchronizeAlertSettings = async () => {
@@ -69,7 +69,6 @@ export const startListenAndPush = async (shouldSend = false) => {
         const needToAddTo = _.differenceBy(alertSettings, needToBeSent, 'id')
         const needToBeRemoved = _.differenceBy(needToBeSent, alertSettings, 'id')
         needToBeSent = needToBeSent.filter(item => !needToBeRemoved.includes(item))
-        console.log('---alertSettings,needToBeSent,needToBeRemoved,needToAddTo', alertSettings.length, needToBeSent.length, needToBeRemoved.length, needToAddTo.length)
         needToBeSent = [...needToBeSent, ...needToAddTo]
     }
 
@@ -79,7 +78,7 @@ export const startListenAndPush = async (shouldSend = false) => {
 
     const onWSMessage = async (message) => {
         await synchronizeAlertSettings()
-        console.log('---onWSMessage');
+        // console.log('---onWSMessage');
         const data = JSON.parse(message.data).data;
         const nowPrice = data.price;
         curPrice = nowPrice;
@@ -97,6 +96,7 @@ export const startListenAndPush = async (shouldSend = false) => {
                 let times = 1;
                 alertSetting.notificationTimes--
                 await sendOrStop(alertSetting, data, times, judgedResult.alertMsg)
+
                 const intervalHandle = setInterval(async () => {
                     if (alertSetting.isBegin) {
                         times++

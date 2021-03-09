@@ -1,5 +1,5 @@
 import {blInfo, BLStatuses, blSuccess} from "../../helpers/business-logic.js";
-import {findOneUser, findUsers, storeUser, storeUserRefreshToken} from "../user/controller.js";
+import {findOneUser, findUsers, storeUser} from "../user/controller.js";
 import jwt from "jsonwebtoken";
 
 const SECRET_KEY = '60409fbbfb8fa21b381cf3a3'
@@ -52,12 +52,12 @@ export const register = async (ctx) => {
         // Twitter is validating the existing email by an AJAX call To another resource. The response of the email validation resource is always a 200 OK. The response contains a JSON object containing a flag to indicate if the email is already registered or not.
         // Amazon is doing it the same way as Facebook. Returning a 200 OK and re-rendering the content to a notification page to inform the user that the account already exists and provide him/her possibilities to take further actions like login or password change.)
         ctx.throw(409, BLStatuses.USER_EXISTS)
-    } else {
-        const accessToken = createAccessToken({email, password})
-        const refreshToken = createRefreshToken({email, password})
-        await storeUser({email, password, refreshToken});
-        ctx.body = {accessToken, refreshToken, "user": {email}}
     }
+    const accessToken = createAccessToken({email, password})
+    const refreshToken = createRefreshToken({email, password})
+    await storeUser({email, password});
+    ctx.body = {accessToken, refreshToken, "user": {email}}
+
 }
 
 export const login = async (ctx) => {
@@ -67,15 +67,9 @@ export const login = async (ctx) => {
     if (!exist) {
         ctx.throw(401, BLStatuses.INCORRECT_EMAIL_OR_PASSWORD)
     }
-    const user = exist
     const accessToken = createAccessToken({email, password})
     const refreshToken = createRefreshToken({email, password})
-    const savedUserRefreshToken = await storeUserRefreshToken(user, refreshToken)
-    if (savedUserRefreshToken) {
-        ctx.body = {accessToken, refreshToken, user: {email}}
-    } else {
-        ctx.throw(422, BLStatuses.CAN_NOT_UPDATE_REFRESH_TOKEN)
-    }
+    ctx.body = {accessToken, refreshToken, user: {email}}
 }
 
 export const refresh = async (ctx) => {
@@ -84,7 +78,7 @@ export const refresh = async (ctx) => {
         return blInfo(BLStatuses.REFRESH_TOKEN_NOT_PROVIDED)
     }
     const refreshToken = request.headers.authorization.split(' ')[1];
-    const {success, code} = verifyRefreshToken(refreshToken)
+    const {success, code, data} = verifyRefreshToken(refreshToken)
     if (!success) {
         switch (code) {
             case 'TokenExpiredError':
@@ -101,11 +95,7 @@ export const refresh = async (ctx) => {
                 break;
         }
     }
-    const user = await findOneUser({refreshToken});
-    if (!user) {
-        ctx.throw(422, BLStatuses.NULL_USER)
-    }
-    const {email, password} = user;
+    const {email, password} = data;
     const accessToken = createAccessToken({email, password})
     ctx.body = {accessToken, user: {email}}
 }
