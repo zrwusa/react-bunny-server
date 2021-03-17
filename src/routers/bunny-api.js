@@ -5,7 +5,7 @@ import * as nearbyFilmCtrl from "../controllers/nearby-film/controller.js";
 import * as pushNotificationCtrl from "../controllers/push-notification/controller.js"
 import * as alertSettingCtrl from "../controllers/push-notification/alert-setting/controller.js"
 import * as authCtrl from "../controllers/auth/controller.js";
-import * as bitcoinPriceCtrl from "../controllers/bitcoin-price/controller.js";
+import * as bitcoinPriceCtrl from "../controllers/crypto-currency-price/controller.js";
 
 export const bunnyRouter = new KoaRouter();
 
@@ -29,7 +29,7 @@ bunnyRouter.get('/employees', employeeCtrl.find)
 
 bunnyRouter.get('/nearby-films', nearbyFilmCtrl.find)
 
-bunnyRouter.get('/bitcoin-prices', bitcoinPriceCtrl.find)
+bunnyRouter.get('/crypto-currency-prices', bitcoinPriceCtrl.find)
 
 // todo filtering, sorting, and pagination
 // todo employees?sort=+author,-datepublished

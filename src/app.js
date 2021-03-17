@@ -8,6 +8,7 @@ import config from "./config.js"
 import {jwtAuth} from "./middlewares/jwt-auth.js"
 import {bunnyAPIMiddleware} from "./middlewares/bunny-api.js"
 import {bunnyRouter} from "./routers/bunny-api.js"
+import {nomicsRouter} from "./routers/v1/nomics-api.js"
 import {startListenAndPush} from "./controllers/push-notification/ws-bitcoin-push.js"
 import "./helpers/db-connect.js"
 
@@ -22,10 +23,13 @@ app.use(bunnyAPIMiddleware());
 app.use(koaBodyParser())
 
 app.use(jwtAuth()
-    .unless({path: ['/auth/login', '/auth/register', '/auth/refresh']}));
+    .unless({path: ['/auth/login', '/auth/register', '/auth/refresh','/v1/currencies/sparkline']}));
 
 app.use(bunnyRouter.routes())
     .use(bunnyRouter.allowedMethods({throw: true})); // The 405 is handled in allowedMethods.
+
+app.use(nomicsRouter.routes())
+    .use(bunnyRouter.allowedMethods({throw: true}));
 
 // app.on('error', (err, ctx) => {
 //     console.log('app.on error',JSON.stringify(err))
