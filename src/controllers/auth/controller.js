@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 const SECRET_KEY = '60409fbbfb8fa21b381cf3a3'
 const ACCESS_TOKEN_EXPIRES_IN = '24h'
 const REFRESH_TOKEN_SECRET_KEY = 'oT1TDBCO7jtDytecDBmKWW'
-const REFRESH_TOKEN_EXPIRES_IN = '7d'
+const REFRESH_TOKEN_EXPIRES_IN = '30d'
 
 export const createAccessToken = (payload) => {
     return jwt.sign(payload, SECRET_KEY, {expiresIn: ACCESS_TOKEN_EXPIRES_IN})
@@ -53,11 +53,25 @@ export const register = async (ctx) => {
         // Amazon is doing it the same way as Facebook. Returning a 200 OK and re-rendering the content to a notification page to inform the user that the account already exists and provide him/her possibilities to take further actions like login or password change.)
         ctx.throw(409, BLStatuses.USER_EXISTS)
     }
-    const accessToken = createAccessToken({email, password})
-    const refreshToken = createRefreshToken({email, password})
     await storeUser({email, password});
-    ctx.body = {accessToken, refreshToken, "user": {email}}
+    const tokenInfo = generateTokenInfo(email, password)
+    ctx.body = {...tokenInfo, "user": {email}}
 
+}
+
+const generateTokenInfo = (email, password, isOnlyAccessToken) => {
+    const accessToken = createAccessToken({email, password})
+    const decodedAccessToken = jwt.decode(accessToken)
+    const accessTokenIat = decodedAccessToken.iat;
+    const accessTokenExp = decodedAccessToken.exp;
+    if (isOnlyAccessToken) {
+        return {accessToken, accessTokenIat, accessTokenExp}
+    }
+    const refreshToken = createRefreshToken({email, password})
+    const decodedRefreshToken = jwt.decode(refreshToken)
+    const refreshTokenIat = decodedRefreshToken.iat;
+    const refreshTokenExp = decodedRefreshToken.exp;
+    return {accessToken, accessTokenIat, accessTokenExp, refreshToken, refreshTokenIat, refreshTokenExp}
 }
 
 export const login = async (ctx) => {
@@ -67,9 +81,8 @@ export const login = async (ctx) => {
     if (!exist) {
         ctx.throw(401, BLStatuses.INCORRECT_EMAIL_OR_PASSWORD)
     }
-    const accessToken = createAccessToken({email, password})
-    const refreshToken = createRefreshToken({email, password})
-    ctx.body = {accessToken, refreshToken, user: {email}}
+    const tokenInfo = generateTokenInfo(email, password)
+    ctx.body = {...tokenInfo, user: {email}}
 }
 
 export const refresh = async (ctx) => {
@@ -96,6 +109,8 @@ export const refresh = async (ctx) => {
         }
     }
     const {email, password} = data;
-    const accessToken = createAccessToken({email, password})
-    ctx.body = {accessToken, user: {email}}
+    const tokenInfo = generateTokenInfo(email, password, true)
+
+    // const accessToken = createAccessToken({email, password})
+    ctx.body = {...tokenInfo, user: {email}}
 }

@@ -36,3 +36,7 @@ bunnyRouter.get('/crypto-currency-prices', bitcoinPriceCtrl.find)
 bunnyRouter.get('/demo-sagas', koaPagination.middleware(), async (ctx) => {
     ctx.body = [{id: 1, text: 'saga1'}, {id: 2, text: 'saga2'}]
 })
+
+bunnyRouter.get('/test', async (ctx) => {
+    ctx.body = [{id: 1, text: 'text1'}, {id: 2, text: 'text2'}]
+})
