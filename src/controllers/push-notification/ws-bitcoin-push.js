@@ -36,7 +36,7 @@ export const startListenAndPush = async (shouldSend = false) => {
     const reconnectTimes = 0;
 
     const onWSOpen = () => {
-        console.log('---onWSOpen');
+        console.log('---websocket connection opened');
         ws.send(JSON.stringify(subscribeMsg));
     }
     ws.addEventListener('open', onWSOpen)
