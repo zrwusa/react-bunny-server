@@ -4,6 +4,7 @@ import koaBodyParser from "koa-bodyparser"
 import cors from "@koa/cors"
 import path from "path"
 import https from "https"
+import http from "http"
 import config from "./config.js"
 import {jwtAuth} from "./middlewares/jwt-auth.js"
 import {bunnyAPIMiddleware} from "./middlewares/bunny-api.js"
@@ -34,34 +35,63 @@ app.use(nomicsRouter.routes())
 // app.on('error', (err, ctx) => {
 //     console.log('app.on error',JSON.stringify(err))
 // });
-startListenAndPush(true).then()
 
-const {localBackEnd, remoteBackEnd, isHttps} = config;
-const keyFile = path.resolve('.expo/web/development/ssl', 'key-localhost.pem');
-const certFile = path.resolve('.expo/web/development/ssl', 'cert-localhost.pem');
-let key, cert;
-let isExpoSSLFileExist = true;
 
-try {
-    key = fs.readFileSync(keyFile);
-    cert = fs.readFileSync(certFile);
-} catch (err) {
-    isExpoSSLFileExist = false;
+const {isHttps} = config;
+
+// if (isHttps && isExpoSSLFileExist) {
+//     https
+//         .createServer(
+//             {
+//                 key: key,
+//                 cert: cert,
+//             },
+//             app
+//         )
+//         .listen(port, () => {
+//             console.log(`https://localhost:${port}/ Run API Mock Server with expo SSL(Just a Self Signed SSL,only for development)`);
+//         });
+// } else {
+//     app.listen(port, () => {
+//         console.log(`http://localhost:${port}/ Run API Mock Server`)
+//     })
+// }
+
+let serverCallback = app.callback();
+if (isHttps) {
+    const certFile = path.resolve('dev-certs', 'dev.bunny.crt');
+    const keyFile = path.resolve('dev-certs', 'dev.bunny.key');
+    try {
+        const key = fs.readFileSync(keyFile);
+        const cert = fs.readFileSync(certFile);
+        let httpsServer = https.createServer({key: key,cert: cert,}, serverCallback);
+        httpsServer
+            .listen(config.https.port, function(err) {
+                if (!!err) {
+                    console.error('HTTPS server FAIL: ', err, (err && err.stack));
+                }
+                else {
+                    console.log(`HTTPS server OK: https://${config.domain}:${config.https.port}`);
+                }
+            });
+        startListenAndPush(true).then()
+    } catch (err) {
+        console.error('Failed to start HTTPS server\n', err, (err && err.stack));
+    }
+}else{
+    try {
+        let httpServer = http.createServer(serverCallback);
+        httpServer
+            .listen(config.http.port, function (err) {
+                if (!!err) {
+                    console.error('HTTP server FAIL: ', err, (err && err.stack));
+                } else {
+                    console.log(`HTTP  server OK: http://${config.domain}:${config.http.port}`);
+                }
+            });
+        startListenAndPush(true).then()
+    } catch (err) {
+        console.error('Failed to start HTTP server\n', err, (err && err.stack));
+    }
 }
-if (isHttps && isExpoSSLFileExist) {
-    https
-        .createServer(
-            {
-                key: key,
-                cert: cert,
-            },
-            app
-        )
-        .listen(remoteBackEnd.port, () => {
-            console.log(`https://localhost:${remoteBackEnd.port}/ Run API Mock Server with expo SSL(Just a Self Signed SSL,only for development)`);
-        });
-} else {
-    app.listen(remoteBackEnd.port, () => {
-        console.log(`http://localhost:${remoteBackEnd.port}/ Run API Mock Server`)
-    })
-}
+

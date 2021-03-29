@@ -22,5 +22,4 @@ test.html
 .env
 .expo-shared/
 yarn-error.log
-key_pair_zrwusa.pem
 .vercel

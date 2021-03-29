@@ -1,3 +1,13 @@
+#Features
+<table>
+<thead><tr><th>Feature</th><th>Desc</th></tr></thead>
+<tbody>
+<tr><td>JWT Auth</td><td>  </td></tr>
+<tr><td>RESTFul Server</td><td></td></tr>
+<tr><td>Https localhost Self Signed Certification</td><td></td></tr>
+</tbody>
+</table>
+
 # Architecture principles
 
 ## Separation of Concern
@@ -17,3 +27,19 @@ The primary purpose of Unit-test is not to detect incorrect grammar but to valid
 
 <!--## Simple Deployability
 Dockerfile and docker-compose.yml to simplify the deployment of the application. It is also possible to manually deploy the application.-->
+
+
+#Development
+
+##Dev HTTPS
+If you want to mock a dev https deployment environment
+```sh
+sudo yarn dev:certs
+```
+Then modify the isHttps value to true which located in the src/config file
+
+If you want to change the domain,just locate to options.conf -> DNS.* ,you can add your domain or just modify DNS.4
+
+Then you have to modify the host file of your system.
+
+If you want to access throw https from other devices,eg. iOS you just drag dev-certs/dev.bunnyCA.pem to iOS simulator.
