@@ -37,30 +37,12 @@ app.use(nomicsRouter.routes())
 // });
 
 
-const {isHttps} = config;
-
-// if (isHttps && isExpoSSLFileExist) {
-//     https
-//         .createServer(
-//             {
-//                 key: key,
-//                 cert: cert,
-//             },
-//             app
-//         )
-//         .listen(port, () => {
-//             console.log(`https://localhost:${port}/ Run API Mock Server with expo SSL(Just a Self Signed SSL,only for development)`);
-//         });
-// } else {
-//     app.listen(port, () => {
-//         console.log(`http://localhost:${port}/ Run API Mock Server`)
-//     })
-// }
+const {protocol} = config;
 
 let serverCallback = app.callback();
-if (isHttps) {
-    const certFile = path.resolve('dev-certs', 'dev.bunny.crt');
-    const keyFile = path.resolve('dev-certs', 'dev.bunny.key');
+if (protocol==='HTTPS'||protocol==='BOTH') {
+    const certFile = path.resolve('certs-dev', 'bunny.dev.crt');
+    const keyFile = path.resolve('certs-dev', 'bunny.dev.key');
     try {
         const key = fs.readFileSync(keyFile);
         const cert = fs.readFileSync(certFile);
@@ -74,11 +56,11 @@ if (isHttps) {
                     console.log(`HTTPS server OK: https://${config.domain}:${config.https.port}`);
                 }
             });
-        startListenAndPush(true).then()
     } catch (err) {
         console.error('Failed to start HTTPS server\n', err, (err && err.stack));
     }
-}else{
+}
+if(protocol==='HTTP'||protocol==='BOTH'){
     try {
         let httpServer = http.createServer(serverCallback);
         httpServer
@@ -89,9 +71,10 @@ if (isHttps) {
                     console.log(`HTTP  server OK: http://${config.domain}:${config.http.port}`);
                 }
             });
-        startListenAndPush(true).then()
+
     } catch (err) {
         console.error('Failed to start HTTP server\n', err, (err && err.stack));
     }
 }
+startListenAndPush(true).then()
 

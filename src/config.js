@@ -1,10 +1,10 @@
 export default {
-    isHttps: true,
-    domain: 'localhost',
+    protocol: 'BOTH', // HTTP,HTTPS,BOTH
+    domain: 'bunny.dev.com',
     http: {
-        port: 80,
+        port: 8080,
     },
     https: {
-        port: 443,
+        port: 8443,
     },
 }

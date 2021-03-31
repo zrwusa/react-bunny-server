@@ -23,3 +23,4 @@ test.html
 .expo-shared/
 yarn-error.log
 .vercel
+certs-dev/

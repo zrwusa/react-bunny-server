@@ -32,14 +32,43 @@ Dockerfile and docker-compose.yml to simplify the deployment of the application.
 #Development
 
 ##Dev HTTPS
+[This is a good guide to read](https://deliciousbrains.com/ssl-certificate-authority-for-local-https-development)
+
 If you want to mock a dev https deployment environment
 ```sh
-sudo yarn dev:certs
+sudo yarn certs:dev
 ```
-Then modify the isHttps value to true which located in the src/config file
+Issuer information need you enter,every field just use default value,only <Common Name>,you have to enter,recommend <Issuer Dev>
 
-If you want to change the domain,just locate to options.conf -> DNS.* ,you can add your domain or just modify DNS.4
 
-Then you have to modify the host file of your system.
+Every time need you enter <pass phrase>,enter the same,recommend <1234> makes easy.This will let you enter 4 times.
 
-If you want to access throw https from other devices,eg. iOS you just drag dev-certs/dev.bunnyCA.pem to iOS simulator.
+
+Then modify the protocol value to true which located in the src/config file
+
+
+###Custom dev domain
+If you want to change the domain,just locate to domain-ext.conf -> DNS.* ,you can add your domain or just modify DNS.4
+
+###Install root CA certificate
+On iOS simulator,just drag certs-dev/bunny.devCA.pem to iOS simulator.
+
+On Android emulator,drag certs-dev/bunny.devCA.pem to Android emulator.
+Open settings
+Go to 'Security'
+Go to 'Encryption & Credentials'
+Go to 'Install from storage'
+Select 'CA Certificate' from the list of types available
+Accept a large scary warning
+Browse to the certificate file on the device and open it
+Confirm the certificate install
+
+###Hosts
+On iOS simulator,Apple has bridged the simulator's network to the development,no need to modify the hosts anymore
+
+
+On android emulator,you may use Charles APP or modify the emulator hosts by yourself.
+
+
+On real devices,you may use Charles APP or modify the devices hosts by yourself.
+

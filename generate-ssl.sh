@@ -28,45 +28,45 @@ if [ ! -d "tmp" ]; then
     mkdir tmp/
 fi
 
-## Make sure the dev-certs/ directory exists
-if [ ! -d "dev-certs" ]; then
-    mkdir dev-certs/
+## Make sure the certs-dev/ directory exists
+if [ ! -d "certs-dev" ]; then
+    mkdir certs-dev/
 fi
 
 # Cleanup files from previous runs
 rm tmp/*
-rm dev-certs/*
+rm certs-dev/*
 
-# Remove any lines that start with CN
-sed -i '' '/^CN/ d' certificate-authority-options.conf
-# Modify the conf file to set CN = ${name}
-echo "CN = ${name}" >> certificate-authority-options.conf
+## Remove any lines that start with CN
+#sed -i '' '/^CN/ d' certificate-authority-options.conf
+## Modify the conf file to set CN = ${name}
+#echo "CN = ${name}" >> certificate-authority-options.conf
 
 # Generate Certificate Authority
 openssl genrsa -des3 -out "tmp/${name}CA.key" 2048
-openssl req -x509 -config certificate-authority-options.conf -new -nodes -key "tmp/${name}CA.key" -sha256 -days 825 -out "dev-certs/${name}CA.pem"
+openssl req -x509 -new -nodes -key "tmp/${name}CA.key" -sha256 -days 825 -out "certs-dev/${name}CA.pem"
 
 if command_exists security ; then
     # Delete trusted certs by their common name via https://unix.stackexchange.com/a/227014
     security find-certificate -c "${name}" -a -Z | sudo awk '/SHA-1/{system("security delete-certificate -Z "$NF)}'
 
     # Trust the Root Certificate cert
-    security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "dev-certs/${name}CA.pem"
+    security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "certs-dev/${name}CA.pem"
 fi
 
 # Generate CA-signed Certificate
-openssl genrsa -out "dev-certs/${name}.key" 2048
-openssl req -new -config certificate-authority-options.conf -key "dev-certs/${name}.key" -out "tmp/${name}.csr"
+openssl genrsa -out "certs-dev/${name}.key" 2048
+openssl req -new -config certificate.conf -key "certs-dev/${name}.key" -out "tmp/${name}.csr"
 
 # Generate SSL Certificate
-openssl x509 -req -in "tmp/${name}.csr" -CA "dev-certs/${name}CA.pem" -CAkey "tmp/${name}CA.key" -CAcreateserial -out "dev-certs/${name}.crt" -days 825 -sha256 -extfile options.conf
+openssl x509 -req -in "tmp/${name}.csr" -CA "certs-dev/${name}CA.pem" -CAkey "tmp/${name}CA.key" -CAcreateserial -out "certs-dev/${name}.crt" -days 825 -sha256 -extfile domain-ext.conf
 
 # Cleanup a stray file
-rm dev-certs/*.srl
+rm certs-dev/*.srl
 
 # The username behind sudo, to give ownership back
 user=$( who am i | awk '{ print $1 }')
-#chown -R "$user" tmp dev-certs
-chmod -R 777 tmp dev-certs
+#chown -R "$user" tmp certs-dev
+chmod -R 777 tmp certs-dev
 rm -rf tmp
-echo "All done! Check the dev-certs directory for your certs."
+echo "All done! Check the certs-dev directory for your certs."
