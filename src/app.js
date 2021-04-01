@@ -53,7 +53,7 @@ app.use(nomicsRouter.routes())
 // });
 
 let envConfig
-console.log('---ENV',process.env.NODE_ENV)
+console.log('---ENV',process)
 if(process.env.NODE_ENV==='production'){
     envConfig = config.prod;
 }else {
