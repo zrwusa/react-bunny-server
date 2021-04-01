@@ -1,8 +1,8 @@
 {
   "type": "module",
   "scripts": {
-    "serve:start": "cross-env NODE_ENV=production pm2 start src/app.js",
-    "serve:stop": "cross-env pm2 stop src/app.js",
+    "ser": "pm2 start src/app.js",
+    "noser": "pm2 stop src/app.js",
     "start": "cross-env NODE_ENV=development node src/app.js ",
     "certs:dev": "sudo sh ./generate-ssl.sh bunny.dev"
   },
