@@ -1,10 +1,22 @@
 export default {
-    protocol: 'BOTH', // HTTP,HTTPS,BOTH
-    domain: 'localhost',
-    http: {
-        port: 80,
+    dev: {
+        protocol: 'BOTH', // HTTP,HTTPS,BOTH
+        domain: 'localhost',
+        http: {
+            port: 8080,
+        },
+        https: {
+            port: 8443,
+        },
     },
-    https: {
-        port: 443,
-    },
+    prod: {
+        protocol: 'BOTH', // HTTP,HTTPS,BOTH
+        domain: 'localhost',
+        http: {
+            port: 80,
+        },
+        https: {
+            port: 443,
+        },
+    }
 }

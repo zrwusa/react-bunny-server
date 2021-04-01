@@ -77,7 +77,7 @@ export const startListenAndPush = async (shouldSend = false) => {
     // }, 1000)
 
     const onWSMessage = async (message) => {
-        console.log('---onWSMessage')
+        // console.log('---onWSMessage')
         await synchronizeAlertSettings()
         const data = JSON.parse(message.data).data;
         const nowPrice = data.price;

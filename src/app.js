@@ -52,9 +52,13 @@ app.use(nomicsRouter.routes())
 //     console.log('app.on error',JSON.stringify(err))
 // });
 
-
-const {protocol} = config;
-
+let envConfig
+if(process.env.NODE_ENV==='production'){
+    envConfig = config.prod;
+}else {
+    envConfig = config.dev;
+}
+const {protocol} = envConfig;
 let serverCallback = app.callback();
 if (protocol === 'HTTPS' || protocol === 'BOTH') {
     const certFile = path.resolve('certs-dev', 'bunny.dev.crt');
@@ -64,11 +68,11 @@ if (protocol === 'HTTPS' || protocol === 'BOTH') {
         const cert = fs.readFileSync(certFile);
         let httpsServer = https.createServer({key: key, cert: cert,}, serverCallback);
         httpsServer
-            .listen(config.https.port, function (err) {
+            .listen(envConfig.https.port, function (err) {
                 if (!!err) {
                     console.error('HTTPS server FAIL: ', err, (err && err.stack));
                 } else {
-                    console.log(`HTTPS server OK: https://${config.domain}:${config.https.port}`);
+                    console.log(`HTTPS server OK: https://${envConfig.domain}:${envConfig.https.port}`);
                 }
             });
     } catch (err) {
@@ -79,11 +83,11 @@ if (protocol === 'HTTP' || protocol === 'BOTH') {
     try {
         let httpServer = http.createServer(serverCallback);
         httpServer
-            .listen(config.http.port, function (err) {
+            .listen(envConfig.http.port, function (err) {
                 if (!!err) {
                     console.error('HTTP server FAIL: ', err, (err && err.stack));
                 } else {
-                    console.log(`HTTP  server OK: http://${config.domain}:${config.http.port}`);
+                    console.log(`HTTP  server OK: http://${envConfig.domain}:${envConfig.http.port}`);
                 }
             });
 
