@@ -1,6 +1,6 @@
 export default {
     protocol: 'BOTH', // HTTP,HTTPS,BOTH
-    domain: 'bunny.dev.com',
+    domain: 'fatpomelo.fun',
     http: {
         port: 8080,
     },
