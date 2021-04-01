@@ -53,11 +53,18 @@ app.use(nomicsRouter.routes())
 // });
 
 let envConfig
+// todo a issue on Ubuntu
 console.log('---ENV',process.env.NODE_ENV)
-if(process.env.NODE_ENV==='production'){
-    envConfig = config.prod;
-}else {
-    envConfig = config.dev;
+switch (process.env.NODE_ENV) {
+    case 'production':
+        envConfig = config.prod;
+        break;
+    case 'development':
+        envConfig = config.dev;
+        break;
+    default:
+        envConfig = config.prod;
+        break;
 }
 const {protocol} = envConfig;
 let serverCallback = app.callback();
