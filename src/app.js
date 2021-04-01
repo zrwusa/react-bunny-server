@@ -24,7 +24,23 @@ app.use(bunnyAPIMiddleware());
 app.use(koaBodyParser())
 
 app.use(jwtAuth()
-    .unless({path: ['/auth/login', '/auth/register', '/auth/refresh','/v1/currencies/sparkline','/crypto-currency-prices','/test']}));
+    .unless({
+        path: [
+            '/test',
+            '/auth/login',
+            '/auth/register',
+            '/auth/refresh',
+            '/employees',
+            '/v1/currencies/sparkline',
+            '/push-service/alert-settings',
+            '/push-service/alert-quick-settings',
+            '/push-service/devices',
+            '//push-service/sendings',
+            '/push-service/alert-settings',
+            '/crypto-currency-prices',
+            '/nearby-films'
+        ]
+    }));
 
 app.use(bunnyRouter.routes())
     .use(bunnyRouter.allowedMethods({throw: true})); // The 405 is handled in allowedMethods.
@@ -40,19 +56,18 @@ app.use(nomicsRouter.routes())
 const {protocol} = config;
 
 let serverCallback = app.callback();
-if (protocol==='HTTPS'||protocol==='BOTH') {
+if (protocol === 'HTTPS' || protocol === 'BOTH') {
     const certFile = path.resolve('certs-dev', 'bunny.dev.crt');
     const keyFile = path.resolve('certs-dev', 'bunny.dev.key');
     try {
         const key = fs.readFileSync(keyFile);
         const cert = fs.readFileSync(certFile);
-        let httpsServer = https.createServer({key: key,cert: cert,}, serverCallback);
+        let httpsServer = https.createServer({key: key, cert: cert,}, serverCallback);
         httpsServer
-            .listen(config.https.port, function(err) {
+            .listen(config.https.port, function (err) {
                 if (!!err) {
                     console.error('HTTPS server FAIL: ', err, (err && err.stack));
-                }
-                else {
+                } else {
                     console.log(`HTTPS server OK: https://${config.domain}:${config.https.port}`);
                 }
             });
@@ -60,7 +75,7 @@ if (protocol==='HTTPS'||protocol==='BOTH') {
         console.error('Failed to start HTTPS server\n', err, (err && err.stack));
     }
 }
-if(protocol==='HTTP'||protocol==='BOTH'){
+if (protocol === 'HTTP' || protocol === 'BOTH') {
     try {
         let httpServer = http.createServer(serverCallback);
         httpServer
