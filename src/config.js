@@ -1,10 +1,10 @@
 export default {
     protocol: 'BOTH', // HTTP,HTTPS,BOTH
-    domain: 'fatpomelo.fun',
+    domain: 'localhost',
     http: {
-        port: 8080,
+        port: 80,
     },
     https: {
-        port: 8443,
+        port: 443,
     },
 }
